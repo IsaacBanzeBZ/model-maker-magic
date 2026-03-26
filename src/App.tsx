@@ -15,6 +15,12 @@ import Import from "./pages/admin/Import.tsx";
 import Results from "./pages/admin/Results.tsx";
 import AcademicYears from "./pages/admin/AcademicYears.tsx";
 import AdminSettings from "./pages/admin/Settings.tsx";
+import SuperAdminLayout from "./layouts/SuperAdminLayout.tsx";
+import SuperAdminDashboard from "./pages/super-admin/Dashboard.tsx";
+import Universities from "./pages/super-admin/Universities.tsx";
+import Admins from "./pages/super-admin/Admins.tsx";
+import AuditLogs from "./pages/super-admin/AuditLogs.tsx";
+import SuperAdminSettings from "./pages/super-admin/Settings.tsx";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +42,13 @@ const App = () => (
             <Route path="results" element={<Results />} />
             <Route path="academic-years" element={<AcademicYears />} />
             <Route path="settings" element={<AdminSettings />} />
+          </Route>
+          <Route path="/super-admin" element={<SuperAdminLayout />}>
+            <Route index element={<SuperAdminDashboard />} />
+            <Route path="universities" element={<Universities />} />
+            <Route path="admins" element={<Admins />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="settings" element={<SuperAdminSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
