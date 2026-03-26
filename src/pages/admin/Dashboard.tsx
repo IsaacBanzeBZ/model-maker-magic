@@ -53,7 +53,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 text-emerald-500" />
+                  <TrendingUp className="h-3 w-3 text-accent" />
                   <span>{s.change}</span>
                 </div>
               </CardContent>
