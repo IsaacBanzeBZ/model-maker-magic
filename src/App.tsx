@@ -21,6 +21,12 @@ import Universities from "./pages/super-admin/Universities.tsx";
 import Admins from "./pages/super-admin/Admins.tsx";
 import AuditLogs from "./pages/super-admin/AuditLogs.tsx";
 import SuperAdminSettings from "./pages/super-admin/Settings.tsx";
+import StudentLayout from "./layouts/StudentLayout.tsx";
+import StudentDashboard from "./pages/student/Dashboard.tsx";
+import StudentResults from "./pages/student/Results.tsx";
+import StudentPerformance from "./pages/student/Performance.tsx";
+import StudentHistory from "./pages/student/History.tsx";
+import StudentSettings from "./pages/student/Settings.tsx";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +48,13 @@ const App = () => (
             <Route path="results" element={<Results />} />
             <Route path="academic-years" element={<AcademicYears />} />
             <Route path="settings" element={<AdminSettings />} />
+          </Route>
+          <Route path="/student" element={<StudentLayout />}>
+            <Route index element={<StudentDashboard />} />
+            <Route path="results" element={<StudentResults />} />
+            <Route path="performance" element={<StudentPerformance />} />
+            <Route path="history" element={<StudentHistory />} />
+            <Route path="settings" element={<StudentSettings />} />
           </Route>
           <Route path="/super-admin" element={<SuperAdminLayout />}>
             <Route index element={<SuperAdminDashboard />} />
