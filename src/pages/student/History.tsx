@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, BookOpen } from "lucide-react";
+import { Calendar, BookOpen, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { generateTranscriptPDF } from "@/lib/generate-transcript";
+import { toast } from "@/hooks/use-toast";
 
 const academicYears = [
   {
@@ -38,6 +41,24 @@ export default function StudentHistory() {
   const [selectedYear, setSelectedYear] = useState(academicYears[0].year);
   const yearData = academicYears.find((y) => y.year === selectedYear)!;
 
+  const handleDownloadPDF = () => {
+    generateTranscriptPDF({
+      studentName: "Jean Mukendi",
+      matricule: "ETU-2025-0042",
+      promotion: yearData.promotion,
+      university: "Université de Kinshasa",
+      academicYear: yearData.year,
+      subjects: yearData.subjects.map((s) => ({
+        name: s.name,
+        avg: s.avg,
+        credits: s.credits,
+      })),
+      generalAverage: yearData.average,
+      status: yearData.status === "Admis" ? "Admis" : yearData.status === "En cours" ? "En cours" : "Ajourné",
+    });
+    toast({ title: "PDF téléchargé", description: `Relevé ${yearData.year} généré.` });
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -45,7 +66,12 @@ export default function StudentHistory() {
           <h1 className="text-2xl font-bold text-foreground">Historique</h1>
           <p className="text-muted-foreground text-sm mt-1">Résultats par année académique</p>
         </div>
-        <Select value={selectedYear} onValueChange={setSelectedYear}>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleDownloadPDF} className="gap-2">
+            <Download className="h-4 w-4" />
+            PDF
+          </Button>
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
           <SelectTrigger className="w-[180px]">
             <Calendar className="h-4 w-4 mr-2" />
             <SelectValue />
@@ -54,8 +80,9 @@ export default function StudentHistory() {
             {academicYears.map((y) => (
               <SelectItem key={y.year} value={y.year}>{y.year}</SelectItem>
             ))}
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
