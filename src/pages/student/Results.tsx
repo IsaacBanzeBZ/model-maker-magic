@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Search } from "lucide-react";
+import { BookOpen, Search, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { generateTranscriptPDF } from "@/lib/generate-transcript";
+import { toast } from "@/hooks/use-toast";
 
 const subjects = [
   { id: 1, name: "Algorithmique", tp: 15, interro: 14, examen: 16, coefficient: 4 },
@@ -42,11 +45,38 @@ export default function StudentResults() {
     return sum + (avg || 0) * s.coefficient;
   }, 0) / subjects.reduce((sum, s) => sum + s.coefficient, 0);
 
+  const handleDownloadPDF = () => {
+    generateTranscriptPDF({
+      studentName: "Jean Mukendi",
+      matricule: "ETU-2025-0042",
+      promotion: "L2 Informatique",
+      university: "Université de Kinshasa",
+      academicYear: "2025-2026",
+      subjects: subjects.map((s) => ({
+        name: s.name,
+        tp: s.tp,
+        interro: s.interro,
+        examen: s.examen,
+        coefficient: s.coefficient,
+        avg: computeAvg(s),
+      })),
+      generalAverage: generalAvg,
+      status: generalAvg >= 10 ? "Admis" : "Ajourné",
+    });
+    toast({ title: "PDF téléchargé", description: "Votre relevé de notes a été généré." });
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-foreground">Mes résultats</h1>
-        <p className="text-muted-foreground text-sm mt-1">Consultation de vos notes par matière</p>
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Mes résultats</h1>
+          <p className="text-muted-foreground text-sm mt-1">Consultation de vos notes par matière</p>
+        </div>
+        <Button onClick={handleDownloadPDF} className="gap-2">
+          <Download className="h-4 w-4" />
+          Télécharger le relevé PDF
+        </Button>
       </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

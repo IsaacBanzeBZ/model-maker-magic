@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { GraduationCap, Upload, Shield, BarChart3, Users, Building2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const features = [
@@ -60,8 +61,12 @@ const Index = () => {
             <a href="#stats" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Chiffres</a>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm">Connexion</Button>
-            <Button size="sm">Commencer <ArrowRight className="ml-1 h-4 w-4" /></Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/login/student">Espace étudiant</Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link to="/login/admin">Espace admin <ArrowRight className="ml-1 h-4 w-4" /></Link>
+            </Button>
           </div>
         </div>
       </nav>
