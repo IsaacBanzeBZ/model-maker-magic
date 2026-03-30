@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import StudentLogin from "./pages/StudentLogin.tsx";
+import SuperAdminLogin from "./pages/SuperAdminLogin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./layouts/AdminLayout.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login/admin" element={<AdminLogin />} />
           <Route path="/login/student" element={<StudentLogin />} />
+          <Route path="/login/super-admin" element={<SuperAdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="students" element={<Students />} />
