@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, Search, Plus, MoreHorizontal, Edit, Trash2, RotateCcw, ArrowUpDown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Search, Plus, MoreHorizontal, Edit, RotateCcw, Power, KeyRound } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +40,10 @@ export default function Students() {
   const [search, setSearch] = useState("");
   const [promoFilter, setPromoFilter] = useState("Toutes");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newStudent, setNewStudent] = useState({ nom: "", postnom: "", prenom: "", promotion: "L1 Informatique" });
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [form, setForm] = useState({ nom: "", postnom: "", prenom: "", promotion: "L1 Informatique" });
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetTarget, setResetTarget] = useState<Student | null>(null);
   const { toast } = useToast();
 
   const filtered = students.filter((s) => {
@@ -49,21 +52,51 @@ export default function Students() {
     return matchSearch && matchPromo;
   });
 
-  const handleAdd = () => {
-    if (!newStudent.nom || !newStudent.postnom || !newStudent.prenom) {
+  const handleSave = () => {
+    if (!form.nom || !form.postnom || !form.prenom) {
       toast({ title: "Erreur", description: "Veuillez remplir tous les champs", variant: "destructive" });
       return;
     }
-    const id = students.length + 1;
-    const matricule = `ETU-2025-${String(id).padStart(4, "0")}`;
-    setStudents([...students, { id, matricule, ...newStudent, status: "active" }]);
-    setNewStudent({ nom: "", postnom: "", prenom: "", promotion: "L1 Informatique" });
+    if (editingStudent) {
+      setStudents(students.map((s) => (s.id === editingStudent.id ? { ...s, ...form } : s)));
+      toast({ title: "Étudiant modifié", description: `${form.nom} ${form.prenom}` });
+    } else {
+      const id = students.length + 1;
+      const matricule = `ETU-2025-${String(id).padStart(4, "0")}`;
+      setStudents([...students, { id, matricule, ...form, status: "active" }]);
+      toast({ title: "Étudiant ajouté", description: `Matricule: ${matricule}` });
+    }
+    setForm({ nom: "", postnom: "", prenom: "", promotion: "L1 Informatique" });
+    setEditingStudent(null);
     setDialogOpen(false);
-    toast({ title: "Étudiant ajouté", description: `Matricule: ${matricule}` });
+  };
+
+  const openEdit = (s: Student) => {
+    setEditingStudent(s);
+    setForm({ nom: s.nom, postnom: s.postnom, prenom: s.prenom, promotion: s.promotion });
+    setDialogOpen(true);
+  };
+
+  const openCreate = () => {
+    setEditingStudent(null);
+    setForm({ nom: "", postnom: "", prenom: "", promotion: "L1 Informatique" });
+    setDialogOpen(true);
   };
 
   const toggleStatus = (id: number) => {
-    setStudents(students.map((s) => s.id === id ? { ...s, status: s.status === "active" ? "inactive" : "active" } : s));
+    setStudents(students.map((s) => (s.id === id ? { ...s, status: s.status === "active" ? "inactive" : "active" } : s)));
+    const student = students.find((s) => s.id === id);
+    toast({ title: student?.status === "active" ? "Étudiant désactivé" : "Étudiant activé" });
+  };
+
+  const handleResetPassword = () => {
+    if (!resetTarget) return;
+    toast({
+      title: "Mot de passe réinitialisé",
+      description: `Le mot de passe de ${resetTarget.nom} ${resetTarget.prenom} (${resetTarget.matricule}) a été réinitialisé au mot de passe par défaut.`,
+    });
+    setResetDialogOpen(false);
+    setResetTarget(null);
   };
 
   return (
@@ -75,28 +108,28 @@ export default function Students() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />Ajouter un étudiant</Button>
+            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Ajouter un étudiant</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Nouvel étudiant</DialogTitle>
+              <DialogTitle>{editingStudent ? "Modifier l'étudiant" : "Nouvel étudiant"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Nom</Label>
-                <Input value={newStudent.nom} onChange={(e) => setNewStudent({ ...newStudent, nom: e.target.value })} placeholder="Nom" />
+                <Input value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} placeholder="Nom" />
               </div>
               <div className="space-y-2">
                 <Label>Post-nom</Label>
-                <Input value={newStudent.postnom} onChange={(e) => setNewStudent({ ...newStudent, postnom: e.target.value })} placeholder="Post-nom" />
+                <Input value={form.postnom} onChange={(e) => setForm({ ...form, postnom: e.target.value })} placeholder="Post-nom" />
               </div>
               <div className="space-y-2">
                 <Label>Prénom</Label>
-                <Input value={newStudent.prenom} onChange={(e) => setNewStudent({ ...newStudent, prenom: e.target.value })} placeholder="Prénom" />
+                <Input value={form.prenom} onChange={(e) => setForm({ ...form, prenom: e.target.value })} placeholder="Prénom" />
               </div>
               <div className="space-y-2">
                 <Label>Promotion</Label>
-                <Select value={newStudent.promotion} onValueChange={(v) => setNewStudent({ ...newStudent, promotion: v })}>
+                <Select value={form.promotion} onValueChange={(v) => setForm({ ...form, promotion: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {promotions.filter((p) => p !== "Toutes").map((p) => (
@@ -108,7 +141,7 @@ export default function Students() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
-              <Button onClick={handleAdd}>Ajouter</Button>
+              <Button onClick={handleSave}>{editingStudent ? "Enregistrer" : "Ajouter"}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -159,11 +192,15 @@ export default function Students() {
                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem><Edit className="h-4 w-4 mr-2" />Modifier</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleStatus(s.id)}>
-                          <RotateCcw className="h-4 w-4 mr-2" />{s.status === "active" ? "Désactiver" : "Activer"}
+                        <DropdownMenuItem onClick={() => openEdit(s)}>
+                          <Edit className="h-4 w-4 mr-2" />Modifier
                         </DropdownMenuItem>
-                        <DropdownMenuItem><RotateCcw className="h-4 w-4 mr-2" />Réinitialiser mdp</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toggleStatus(s.id)}>
+                          <Power className="h-4 w-4 mr-2" />{s.status === "active" ? "Désactiver" : "Activer"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setResetTarget(s); setResetDialogOpen(true); }}>
+                          <KeyRound className="h-4 w-4 mr-2" />Réinitialiser mdp
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -178,6 +215,22 @@ export default function Students() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Le mot de passe de <span className="font-medium text-foreground">{resetTarget?.nom} {resetTarget?.prenom}</span> ({resetTarget?.matricule}) sera réinitialisé au mot de passe par défaut.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetDialogOpen(false)}>Annuler</Button>
+            <Button variant="destructive" onClick={handleResetPassword}>Réinitialiser</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
