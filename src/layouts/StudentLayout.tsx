@@ -1,8 +1,20 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/StudentSidebar";
+import { ForcePasswordChangeDialog } from "@/components/ForcePasswordChangeDialog";
 
 export default function StudentLayout() {
+  // Simulate first login detection (in production, check from backend/JWT)
+  const [needsPasswordChange, setNeedsPasswordChange] = useState(() => {
+    return sessionStorage.getItem("studentPasswordChanged") !== "true";
+  });
+
+  const handlePasswordChanged = () => {
+    sessionStorage.setItem("studentPasswordChanged", "true");
+    setNeedsPasswordChange(false);
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -17,6 +29,7 @@ export default function StudentLayout() {
           </main>
         </div>
       </div>
+      <ForcePasswordChangeDialog open={needsPasswordChange} onComplete={handlePasswordChanged} />
     </SidebarProvider>
   );
 }
