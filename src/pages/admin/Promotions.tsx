@@ -4,7 +4,6 @@ import { GraduationCap, Plus, Edit, Trash2, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -28,18 +27,37 @@ const initialPromotions: Promotion[] = [
 export default function Promotions() {
   const [promotions, setPromotions] = useState(initialPromotions);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newPromo, setNewPromo] = useState({ name: "", level: "" });
+  const [editingPromo, setEditingPromo] = useState<Promotion | null>(null);
+  const [form, setForm] = useState({ name: "", level: "" });
   const { toast } = useToast();
 
-  const handleAdd = () => {
-    if (!newPromo.name || !newPromo.level) {
+  const handleSave = () => {
+    if (!form.name || !form.level) {
       toast({ title: "Erreur", description: "Remplissez tous les champs", variant: "destructive" });
       return;
     }
-    setPromotions([...promotions, { id: promotions.length + 1, ...newPromo, studentCount: 0 }]);
-    setNewPromo({ name: "", level: "" });
+    if (editingPromo) {
+      setPromotions(promotions.map((p) => (p.id === editingPromo.id ? { ...p, ...form } : p)));
+      toast({ title: "Promotion modifiée", description: form.name });
+    } else {
+      setPromotions([...promotions, { id: Date.now(), ...form, studentCount: 0 }]);
+      toast({ title: "Promotion créée", description: form.name });
+    }
+    setForm({ name: "", level: "" });
+    setEditingPromo(null);
     setDialogOpen(false);
-    toast({ title: "Promotion créée", description: newPromo.name });
+  };
+
+  const openEdit = (p: Promotion) => {
+    setEditingPromo(p);
+    setForm({ name: p.name, level: p.level });
+    setDialogOpen(true);
+  };
+
+  const openCreate = () => {
+    setEditingPromo(null);
+    setForm({ name: "", level: "" });
+    setDialogOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -56,23 +74,25 @@ export default function Promotions() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />Nouvelle promotion</Button>
+            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Nouvelle promotion</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Créer une promotion</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{editingPromo ? "Modifier la promotion" : "Créer une promotion"}</DialogTitle>
+            </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Nom de la promotion</Label>
-                <Input value={newPromo.name} onChange={(e) => setNewPromo({ ...newPromo, name: e.target.value })} placeholder="Ex: L1 Informatique" />
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ex: L1 Informatique" />
               </div>
               <div className="space-y-2">
                 <Label>Niveau</Label>
-                <Input value={newPromo.level} onChange={(e) => setNewPromo({ ...newPromo, level: e.target.value })} placeholder="Ex: Licence 1" />
+                <Input value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} placeholder="Ex: Licence 1" />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
-              <Button onClick={handleAdd}>Créer</Button>
+              <Button onClick={handleSave}>{editingPromo ? "Enregistrer" : "Créer"}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -102,7 +122,9 @@ export default function Promotions() {
                     <span>{p.studentCount} étudiants</span>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="h-3.5 w-3.5" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
