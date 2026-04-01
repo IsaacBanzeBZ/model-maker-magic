@@ -54,6 +54,8 @@ const App = () => (
             <Route path="results" element={<Results />} />
             <Route path="academic-years" element={<AcademicYears />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="activity" element={<AdminActivityHistory />} />
           </Route>
           <Route path="/student" element={<StudentLayout />}>
             <Route index element={<StudentDashboard />} />
