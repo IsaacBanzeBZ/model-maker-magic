@@ -38,6 +38,7 @@ const mockUniversities: University[] = [
 ];
 
 export default function Universities() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [universities, setUniversities] = useState<University[]>(mockUniversities);
   const [dialogOpen, setDialogOpen] = useState(false);
