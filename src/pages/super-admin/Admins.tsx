@@ -199,6 +199,12 @@ export default function Admins() {
                           <DropdownMenuItem onClick={() => toggleStatus(a.id)}>
                             <Power className="h-4 w-4 mr-2" /> {a.status === "active" ? "Désactiver" : "Activer"}
                           </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => {
+                            toggleStatus(a.id);
+                            toast({ title: "Admin banni", description: `${a.name} a été banni de la plateforme.` });
+                          }}>
+                            <Ban className="h-4 w-4 mr-2" /> Bannir
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
