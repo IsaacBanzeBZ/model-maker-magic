@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { UserCog, Plus, Search, MoreHorizontal, Pencil, KeyRound, Power } from "lucide-react";
+import { UserCog, Plus, Search, MoreHorizontal, Pencil, KeyRound, Power, Ban } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
