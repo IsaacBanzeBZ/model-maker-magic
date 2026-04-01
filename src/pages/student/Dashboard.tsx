@@ -3,6 +3,11 @@ import { BookOpen, TrendingUp, Award, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  LineChart, Line, Legend, ReferenceLine
+} from "recharts";
 
 const studentInfo = {
   name: "Jean Mukendi",
@@ -17,6 +22,33 @@ const stats = [
   { label: "Matières", value: "8", icon: BookOpen, detail: "En cours" },
   { label: "Crédits validés", value: "42/60", icon: Award, detail: "70%" },
   { label: "Année académique", value: "2025-2026", icon: Calendar, detail: "Active" },
+];
+
+const gradesBySubject = [
+  { subject: "Algo", note: 16, max: 20 },
+  { subject: "BDD", note: 14, max: 20 },
+  { subject: "Réseaux", note: 12, max: 20 },
+  { subject: "Maths", note: 15, max: 20 },
+  { subject: "Anglais", note: 17, max: 20 },
+  { subject: "Physique", note: 11, max: 20 },
+  { subject: "Système", note: 13, max: 20 },
+  { subject: "Stats", note: 14, max: 20 },
+];
+
+const radarData = [
+  { subject: "Algo", note: 16 },
+  { subject: "BDD", note: 14 },
+  { subject: "Réseaux", note: 12 },
+  { subject: "Maths", note: 15 },
+  { subject: "Anglais", note: 17 },
+  { subject: "Physique", note: 11 },
+];
+
+const progressionData = [
+  { period: "S1 2024", moyenne: 11.5 },
+  { period: "S2 2024", moyenne: 12.8 },
+  { period: "S1 2025", moyenne: 13.6 },
+  { period: "S2 2025", moyenne: 14.2 },
 ];
 
 const recentGrades = [
@@ -40,12 +72,8 @@ export default function StudentDashboard() {
         </p>
       </motion.div>
 
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
+      {/* Stats */}
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" variants={container} initial="hidden" animate="show">
         {stats.map((s) => (
           <motion.div key={s.label} variants={item}>
             <Card className="hover:shadow-md transition-shadow">
@@ -66,8 +94,104 @@ export default function StudentDashboard() {
         ))}
       </motion.div>
 
+      {/* Charts Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Notes par matière</CardTitle>
+              <CardDescription>Vos résultats dans chaque matière</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={gradesBySubject}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <YAxis domain={[0, 20]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--foreground))" }} />
+                  <ReferenceLine y={10} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Seuil", fill: "hsl(var(--destructive))", fontSize: 11 }} />
+                  <Bar dataKey="note" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} name="Note /20" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Profil de compétences</CardTitle>
+              <CardDescription>Vue radar de vos performances</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="hsl(var(--border))" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <PolarRadiusAxis domain={[0, 20]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                  <Radar name="Note" dataKey="note" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" fillOpacity={0.6} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--foreground))" }} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Chart Row 2 + Progression */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+        <motion.div className="lg:col-span-2" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Évolution de la moyenne</CardTitle>
+              <CardDescription>Progression sur les semestres</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={progressionData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="period" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <YAxis domain={[0, 20]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--foreground))" }} />
+                  <ReferenceLine y={10} stroke="hsl(var(--destructive))" strokeDasharray="3 3" />
+                  <Legend />
+                  <Line type="monotone" dataKey="moyenne" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ fill: "hsl(var(--primary))", r: 5 }} name="Moyenne" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Progression</CardTitle>
+            <CardDescription>Crédits validés cette année</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center">
+              <p className="text-4xl font-bold text-primary">70%</p>
+              <p className="text-sm text-muted-foreground mt-1">42/60 crédits</p>
+            </div>
+            <Progress value={70} className="h-3" />
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Semestre 1</span>
+                <span className="font-medium text-foreground">28/30</span>
+              </div>
+              <Progress value={93} className="h-2" />
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Semestre 2</span>
+                <span className="font-medium text-foreground">14/30</span>
+              </div>
+              <Progress value={47} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent grades */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">Dernières notes</CardTitle>
             <CardDescription>Vos notes les plus récentes</CardDescription>
@@ -104,33 +228,7 @@ export default function StudentDashboard() {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Progression</CardTitle>
-            <CardDescription>Crédits validés cette année</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="text-center">
-              <p className="text-4xl font-bold text-primary">70%</p>
-              <p className="text-sm text-muted-foreground mt-1">42/60 crédits</p>
-            </div>
-            <Progress value={70} className="h-3" />
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Semestre 1</span>
-                <span className="font-medium text-foreground">28/30</span>
-              </div>
-              <Progress value={93} className="h-2" />
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Semestre 2</span>
-                <span className="font-medium text-foreground">14/30</span>
-              </div>
-              <Progress value={47} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }
