@@ -22,6 +22,10 @@ import Universities from "./pages/super-admin/Universities.tsx";
 import Admins from "./pages/super-admin/Admins.tsx";
 import AuditLogs from "./pages/super-admin/AuditLogs.tsx";
 import SuperAdminSettings from "./pages/super-admin/Settings.tsx";
+import UniversityDetails from "./pages/super-admin/UniversityDetails.tsx";
+import SuperAdminNotifications from "./pages/super-admin/Notifications.tsx";
+import AdminNotifications from "./pages/admin/Notifications.tsx";
+import AdminActivityHistory from "./pages/admin/ActivityHistory.tsx";
 import StudentLayout from "./layouts/StudentLayout.tsx";
 import StudentDashboard from "./pages/student/Dashboard.tsx";
 import StudentResults from "./pages/student/Results.tsx";
@@ -50,6 +54,8 @@ const App = () => (
             <Route path="results" element={<Results />} />
             <Route path="academic-years" element={<AcademicYears />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="activity" element={<AdminActivityHistory />} />
           </Route>
           <Route path="/student" element={<StudentLayout />}>
             <Route index element={<StudentDashboard />} />
@@ -61,8 +67,10 @@ const App = () => (
           <Route path="/super-admin" element={<SuperAdminLayout />}>
             <Route index element={<SuperAdminDashboard />} />
             <Route path="universities" element={<Universities />} />
+            <Route path="universities/:id" element={<UniversityDetails />} />
             <Route path="admins" element={<Admins />} />
             <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="notifications" element={<SuperAdminNotifications />} />
             <Route path="settings" element={<SuperAdminSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />

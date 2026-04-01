@@ -7,6 +7,8 @@ import {
   BookOpen,
   Settings,
   LogOut,
+  Bell,
+  Activity,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -35,6 +37,8 @@ const mainNav = [
 
 const configNav = [
   { title: "Années académiques", url: "/admin/academic-years", icon: Calendar },
+  { title: "Historique", url: "/admin/activity", icon: Activity },
+  { title: "Notifications", url: "/admin/notifications", icon: Bell },
   { title: "Paramètres", url: "/admin/settings", icon: Settings },
 ];
 

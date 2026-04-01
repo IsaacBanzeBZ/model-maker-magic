@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Building2, Plus, Search, MoreHorizontal, Pencil, Power, Trash2, AlertTriangle } from "lucide-react";
+import { Building2, Plus, Search, MoreHorizontal, Pencil, Power, Trash2, AlertTriangle, Eye, Ban } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ const mockUniversities: University[] = [
 ];
 
 export default function Universities() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [universities, setUniversities] = useState<University[]>(mockUniversities);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -196,6 +198,9 @@ export default function Universities() {
                           <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/super-admin/universities/${u.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" /> Voir détails
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(u)}>
                             <Pencil className="h-4 w-4 mr-2" /> Modifier
                           </DropdownMenuItem>

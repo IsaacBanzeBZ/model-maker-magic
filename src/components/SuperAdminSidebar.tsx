@@ -6,6 +6,7 @@ import {
   Settings,
   LogOut,
   ScrollText,
+  Bell,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -31,6 +32,7 @@ const mainNav = [
 ];
 
 const systemNav = [
+  { title: "Notifications", url: "/super-admin/notifications", icon: Bell },
   { title: "Logs d'audit", url: "/super-admin/audit-logs", icon: ScrollText },
   { title: "Paramètres", url: "/super-admin/settings", icon: Settings },
 ];
