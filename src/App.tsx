@@ -65,8 +65,10 @@ const App = () => (
           <Route path="/super-admin" element={<SuperAdminLayout />}>
             <Route index element={<SuperAdminDashboard />} />
             <Route path="universities" element={<Universities />} />
+            <Route path="universities/:id" element={<UniversityDetails />} />
             <Route path="admins" element={<Admins />} />
             <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="notifications" element={<SuperAdminNotifications />} />
             <Route path="settings" element={<SuperAdminSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
