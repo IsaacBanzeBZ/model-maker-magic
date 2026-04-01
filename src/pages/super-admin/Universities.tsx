@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Building2, Plus, Search, MoreHorizontal, Pencil, Power, Trash2, AlertTriangle } from "lucide-react";
+import { Building2, Plus, Search, MoreHorizontal, Pencil, Power, Trash2, AlertTriangle, Eye, Ban } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
