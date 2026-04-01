@@ -198,6 +198,9 @@ export default function Universities() {
                           <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/super-admin/universities/${u.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" /> Voir détails
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(u)}>
                             <Pencil className="h-4 w-4 mr-2" /> Modifier
                           </DropdownMenuItem>
