@@ -132,7 +132,7 @@ export default function UniversityDetails() {
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium text-muted-foreground">Période :</span>
         <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="annuel">Annuel</SelectItem>
             <SelectItem value="mensuel">Mensuel</SelectItem>

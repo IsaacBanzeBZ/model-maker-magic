@@ -198,6 +198,7 @@ export default function StudentResults() {
               })}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

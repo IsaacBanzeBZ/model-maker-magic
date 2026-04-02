@@ -176,7 +176,7 @@ export default function Students() {
               <Input placeholder="Rechercher par nom, matricule..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
             </div>
             <Select value={promoFilter} onValueChange={setPromoFilter}>
-              <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {promotions.map((p) => (
                   <SelectItem key={p} value={p}>{p}</SelectItem>

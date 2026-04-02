@@ -40,7 +40,7 @@ export default function StudentPerformance() {
   const maxCredits = semesterData.reduce((s, sem) => s + sem.totalCredits, 0);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Ma performance</h1>
         <p className="text-muted-foreground text-sm mt-1">Suivi de votre progression académique</p>

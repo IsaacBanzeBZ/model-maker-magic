@@ -188,6 +188,7 @@ export default function AdminActivityHistory() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

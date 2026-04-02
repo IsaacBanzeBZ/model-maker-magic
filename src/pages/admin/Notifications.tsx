@@ -66,7 +66,7 @@ export default function AdminNotifications() {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>Destinataire</Label>
-                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-3 gap-3">
+                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { value: "all", label: "Tous les étudiants", icon: Users },
                     { value: "promotion", label: "Par promotion", icon: GraduationCap },
