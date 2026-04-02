@@ -1,20 +1,31 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Save, KeyRound, RotateCcw, GraduationCap, Download } from "lucide-react";
+import { Save, RotateCcw, GraduationCap, Download, Building, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const promotions = ["L1 Informatique", "L2 Informatique", "L3 Informatique"];
 
 export default function AdminSettings() {
   const { toast } = useToast();
   const [defaultStudentPassword, setDefaultStudentPassword] = useState("EduLedger2025");
   const [forcePasswordChange, setForcePasswordChange] = useState(true);
-  const [downloadEnabled, setDownloadEnabled] = useState(() => {
-    return localStorage.getItem("adminDownloadEnabled") !== "false";
+
+  // Download control: 3 levels
+  const [universityDownload, setUniversityDownload] = useState(() => {
+    return localStorage.getItem("dl_university") !== "false";
+  });
+  const [promotionDownloads, setPromotionDownloads] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("dl_promotions") || "{}");
+    } catch { return {}; }
   });
 
   // Reset dialog
@@ -22,19 +33,34 @@ export default function AdminSettings() {
   const [resetMatricule, setResetMatricule] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
 
-  const handleToggleDownload = (checked: boolean) => {
-    setDownloadEnabled(checked);
-    localStorage.setItem("adminDownloadEnabled", String(checked));
+  const handleUniversityToggle = (checked: boolean) => {
+    setUniversityDownload(checked);
+    localStorage.setItem("dl_university", String(checked));
     toast({
-      title: checked ? "Téléchargement activé" : "Téléchargement désactivé",
+      title: checked ? "Téléchargement activé (université)" : "Téléchargement désactivé (université)",
       description: checked
-        ? "Les étudiants peuvent télécharger leur relevé de notes."
-        : "Les étudiants ne peuvent plus télécharger leur relevé de notes.",
+        ? "Tous les étudiants peuvent télécharger leur relevé."
+        : "Le téléchargement est bloqué pour toute l'université.",
     });
   };
 
+  const handlePromotionToggle = (promo: string, checked: boolean) => {
+    const updated = { ...promotionDownloads, [promo]: checked };
+    setPromotionDownloads(updated);
+    localStorage.setItem("dl_promotions", JSON.stringify(updated));
+    toast({
+      title: checked ? `Téléchargement activé — ${promo}` : `Téléchargement désactivé — ${promo}`,
+    });
+  };
+
+  const isPromoEnabled = (promo: string) => {
+    if (!universityDownload) return false;
+    return promotionDownloads[promo] !== false;
+  };
+
   const handleSave = () => {
-    localStorage.setItem("adminDownloadEnabled", String(downloadEnabled));
+    localStorage.setItem("dl_university", String(universityDownload));
+    localStorage.setItem("dl_promotions", JSON.stringify(promotionDownloads));
     toast({ title: "Paramètres enregistrés", description: "Les paramètres ont été mis à jour." });
   };
 
@@ -56,7 +82,7 @@ export default function AdminSettings() {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Paramètres</h1>
-        <p className="text-muted-foreground text-sm mt-1">Configuration des mots de passe étudiants de votre université</p>
+        <p className="text-muted-foreground text-sm mt-1">Configuration des mots de passe et téléchargements</p>
       </motion.div>
 
       {/* Student Default Password */}
@@ -68,7 +94,7 @@ export default function AdminSettings() {
             </div>
             <div>
               <CardTitle className="text-base">Mot de passe étudiant par défaut</CardTitle>
-              <CardDescription>Ce mot de passe sera attribué aux nouveaux étudiants de votre université</CardDescription>
+              <CardDescription>Ce mot de passe sera attribué aux nouveaux étudiants</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -87,31 +113,93 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
-      {/* Download Control */}
+      {/* Download Control — University Level */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-accent/20 flex items-center justify-center">
-              <Download className="h-4 w-4 text-accent-foreground" />
+            <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <Building className="h-4 w-4 text-destructive" />
             </div>
             <div>
-              <CardTitle className="text-base">Téléchargement du relevé de notes</CardTitle>
-              <CardDescription>Contrôler l'accès au téléchargement PDF pour les étudiants</CardDescription>
+              <CardTitle className="text-base">Téléchargement — Niveau université</CardTitle>
+              <CardDescription>Bloquer ou autoriser le téléchargement pour toute l'université</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <Label>Autoriser le téléchargement</Label>
+              <Label>Autoriser le téléchargement (global)</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {downloadEnabled
-                  ? "Les étudiants peuvent télécharger leur relevé de notes en PDF"
-                  : "Le téléchargement est actuellement bloqué pour tous les étudiants"}
+                {universityDownload
+                  ? "Le téléchargement est autorisé au niveau de l'université"
+                  : "Le téléchargement est bloqué pour TOUS les étudiants"}
               </p>
             </div>
-            <Switch checked={downloadEnabled} onCheckedChange={handleToggleDownload} />
+            <Switch checked={universityDownload} onCheckedChange={handleUniversityToggle} />
           </div>
+          {!universityDownload && (
+            <Badge variant="destructive" className="mt-3">Tout téléchargement bloqué</Badge>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Download Control — Promotion Level */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-accent/20 flex items-center justify-center">
+              <Users className="h-4 w-4 text-accent-foreground" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Téléchargement — Par promotion</CardTitle>
+              <CardDescription>Activer ou désactiver le téléchargement pour chaque promotion</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {promotions.map((promo) => {
+            const enabled = isPromoEnabled(promo);
+            return (
+              <div key={promo} className="flex items-center justify-between py-2 px-3 rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <Badge variant="secondary">{promo}</Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {!universityDownload ? "Bloqué (université)" : enabled ? "Autorisé" : "Bloqué"}
+                  </span>
+                </div>
+                <Switch
+                  checked={enabled}
+                  disabled={!universityDownload}
+                  onCheckedChange={(checked) => handlePromotionToggle(promo, checked)}
+                />
+              </div>
+            );
+          })}
+          {!universityDownload && (
+            <p className="text-xs text-muted-foreground italic">Activez d'abord le téléchargement au niveau université.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Per-Student Download Info */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Download className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Téléchargement — Par étudiant</CardTitle>
+              <CardDescription>Gérez le téléchargement individuellement depuis la page Étudiants</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Pour bloquer ou débloquer le téléchargement d'un étudiant spécifique, 
+            utilisez le menu d'actions (⋯) sur chaque étudiant dans la page <strong>Gestion des étudiants</strong>.
+          </p>
         </CardContent>
       </Card>
 

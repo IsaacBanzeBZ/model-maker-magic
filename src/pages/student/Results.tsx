@@ -45,7 +45,26 @@ export default function StudentResults() {
     return sum + (avg || 0) * s.coefficient;
   }, 0) / subjects.reduce((sum, s) => sum + s.coefficient, 0);
 
-  const isDownloadEnabled = localStorage.getItem("adminDownloadEnabled") !== "false";
+  // Check 3-level download permission: university > promotion > student
+  const checkDownloadEnabled = () => {
+    // Level 1: University-wide
+    if (localStorage.getItem("dl_university") === "false") return false;
+    // Level 2: Promotion-level
+    try {
+      const promoSettings = JSON.parse(localStorage.getItem("dl_promotions") || "{}");
+      const studentPromo = "L2 Informatique"; // Mock: would come from auth context
+      if (promoSettings[studentPromo] === false) return false;
+    } catch {}
+    // Level 3: Per-student
+    try {
+      const studentSettings = JSON.parse(localStorage.getItem("dl_students") || "{}");
+      const studentMatricule = "ETU-2025-0042"; // Mock: would come from auth context
+      if (studentSettings[studentMatricule] === true) return false;
+    } catch {}
+    return true;
+  };
+
+  const isDownloadEnabled = checkDownloadEnabled();
 
   const handleDownloadPDF = () => {
     if (!isDownloadEnabled) {
