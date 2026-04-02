@@ -87,6 +87,34 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Download Control */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-accent/20 flex items-center justify-center">
+              <Download className="h-4 w-4 text-accent-foreground" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Téléchargement du relevé de notes</CardTitle>
+              <CardDescription>Contrôler l'accès au téléchargement PDF pour les étudiants</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Autoriser le téléchargement</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {downloadEnabled
+                  ? "Les étudiants peuvent télécharger leur relevé de notes en PDF"
+                  : "Le téléchargement est actuellement bloqué pour tous les étudiants"}
+              </p>
+            </div>
+            <Switch checked={downloadEnabled} onCheckedChange={handleToggleDownload} />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Reset Student Password */}
       <Card>
         <CardHeader>
