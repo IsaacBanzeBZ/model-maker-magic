@@ -117,6 +117,7 @@ export default function StudentHistory() {
           <CardDescription>{yearData.subjects.length} matières</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

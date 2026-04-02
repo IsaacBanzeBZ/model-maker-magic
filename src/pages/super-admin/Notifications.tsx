@@ -79,7 +79,7 @@ export default function SuperAdminNotifications() {
               {/* Target */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Destinataire</Label>
-                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-2 gap-3">
+                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: "all_universities", label: "Toutes les universités", icon: Building2 },
                     { value: "one_university", label: "Une université", icon: Building2 },
