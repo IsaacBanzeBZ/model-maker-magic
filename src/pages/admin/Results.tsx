@@ -162,15 +162,16 @@ export default function Results() {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Étudiant</TableHead>
-                    <TableHead>Matricule</TableHead>
+                    <TableHead className="hidden sm:table-cell">Matricule</TableHead>
                     <TableHead>Matière</TableHead>
                     <TableHead className="text-center">Note</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Promotion</TableHead>
+                    <TableHead className="hidden md:table-cell">Type</TableHead>
+                    <TableHead className="hidden md:table-cell">Promotion</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
