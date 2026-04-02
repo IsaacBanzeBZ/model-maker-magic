@@ -187,6 +187,7 @@ export default function Results() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -198,6 +199,7 @@ export default function Results() {
               <CardDescription>Publiez ou retirez les résultats visibles par les étudiants</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
