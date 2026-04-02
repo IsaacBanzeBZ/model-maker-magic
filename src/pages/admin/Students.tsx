@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, Search, Plus, MoreHorizontal, Edit, RotateCcw, Power, KeyRound } from "lucide-react";
+import { Users, Search, Plus, MoreHorizontal, Edit, Power, KeyRound, Download, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
 interface Student {
@@ -20,17 +20,18 @@ interface Student {
   prenom: string;
   promotion: string;
   status: "active" | "inactive";
+  downloadBlocked: boolean;
 }
 
 const initialStudents: Student[] = [
-  { id: 1, matricule: "ETU-2025-0001", nom: "Mukendi", postnom: "Kabila", prenom: "Jean", promotion: "L1 Informatique", status: "active" },
-  { id: 2, matricule: "ETU-2025-0002", nom: "Tshimanga", postnom: "Mwamba", prenom: "Marie", promotion: "L2 Informatique", status: "active" },
-  { id: 3, matricule: "ETU-2025-0003", nom: "Kalala", postnom: "Ngoy", prenom: "Pierre", promotion: "L1 Informatique", status: "active" },
-  { id: 4, matricule: "ETU-2025-0004", nom: "Ilunga", postnom: "Kasongo", prenom: "Sophie", promotion: "L3 Informatique", status: "inactive" },
-  { id: 5, matricule: "ETU-2025-0005", nom: "Kabongo", postnom: "Mutombo", prenom: "David", promotion: "L2 Informatique", status: "active" },
-  { id: 6, matricule: "ETU-2025-0006", nom: "Mbuyi", postnom: "Tshilumba", prenom: "Claire", promotion: "L1 Informatique", status: "active" },
-  { id: 7, matricule: "ETU-2025-0007", nom: "Ngandu", postnom: "Kazembe", prenom: "Paul", promotion: "L3 Informatique", status: "active" },
-  { id: 8, matricule: "ETU-2025-0008", nom: "Kalonji", postnom: "Mwilambwe", prenom: "Anne", promotion: "L2 Informatique", status: "inactive" },
+  { id: 1, matricule: "ETU-2025-0001", nom: "Mukendi", postnom: "Kabila", prenom: "Jean", promotion: "L1 Informatique", status: "active", downloadBlocked: false },
+  { id: 2, matricule: "ETU-2025-0002", nom: "Tshimanga", postnom: "Mwamba", prenom: "Marie", promotion: "L2 Informatique", status: "active", downloadBlocked: false },
+  { id: 3, matricule: "ETU-2025-0003", nom: "Kalala", postnom: "Ngoy", prenom: "Pierre", promotion: "L1 Informatique", status: "active", downloadBlocked: false },
+  { id: 4, matricule: "ETU-2025-0004", nom: "Ilunga", postnom: "Kasongo", prenom: "Sophie", promotion: "L3 Informatique", status: "inactive", downloadBlocked: false },
+  { id: 5, matricule: "ETU-2025-0005", nom: "Kabongo", postnom: "Mutombo", prenom: "David", promotion: "L2 Informatique", status: "active", downloadBlocked: true },
+  { id: 6, matricule: "ETU-2025-0006", nom: "Mbuyi", postnom: "Tshilumba", prenom: "Claire", promotion: "L1 Informatique", status: "active", downloadBlocked: false },
+  { id: 7, matricule: "ETU-2025-0007", nom: "Ngandu", postnom: "Kazembe", prenom: "Paul", promotion: "L3 Informatique", status: "active", downloadBlocked: false },
+  { id: 8, matricule: "ETU-2025-0008", nom: "Kalonji", postnom: "Mwilambwe", prenom: "Anne", promotion: "L2 Informatique", status: "inactive", downloadBlocked: false },
 ];
 
 const promotions = ["Toutes", "L1 Informatique", "L2 Informatique", "L3 Informatique"];
@@ -63,7 +64,7 @@ export default function Students() {
     } else {
       const id = students.length + 1;
       const matricule = `ETU-2025-${String(id).padStart(4, "0")}`;
-      setStudents([...students, { id, matricule, ...form, status: "active" }]);
+      setStudents([...students, { id, matricule, ...form, status: "active", downloadBlocked: false }]);
       toast({ title: "Étudiant ajouté", description: `Matricule: ${matricule}` });
     }
     setForm({ nom: "", postnom: "", prenom: "", promotion: "L1 Informatique" });
@@ -87,6 +88,26 @@ export default function Students() {
     setStudents(students.map((s) => (s.id === id ? { ...s, status: s.status === "active" ? "inactive" : "active" } : s)));
     const student = students.find((s) => s.id === id);
     toast({ title: student?.status === "active" ? "Étudiant désactivé" : "Étudiant activé" });
+  };
+
+  const toggleDownload = (id: number) => {
+    setStudents(students.map((s) => {
+      if (s.id === id) {
+        const blocked = !s.downloadBlocked;
+        // Persist per-student blocks
+        const stored = JSON.parse(localStorage.getItem("dl_students") || "{}");
+        stored[s.matricule] = blocked;
+        localStorage.setItem("dl_students", JSON.stringify(stored));
+        return { ...s, downloadBlocked: blocked };
+      }
+      return s;
+    }));
+    const student = students.find((s) => s.id === id);
+    const wasBlocked = student?.downloadBlocked;
+    toast({
+      title: wasBlocked ? "Téléchargement autorisé" : "Téléchargement bloqué",
+      description: `${student?.nom} ${student?.prenom} (${student?.matricule})`,
+    });
   };
 
   const handleResetPassword = () => {
@@ -172,6 +193,7 @@ export default function Students() {
                 <TableHead>Nom complet</TableHead>
                 <TableHead>Promotion</TableHead>
                 <TableHead className="text-center">Statut</TableHead>
+                <TableHead className="text-center">Téléchargement</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -186,6 +208,11 @@ export default function Students() {
                       {s.status === "active" ? "Actif" : "Inactif"}
                     </Badge>
                   </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={s.downloadBlocked ? "destructive" : "default"} className={!s.downloadBlocked ? "bg-accent text-accent-foreground" : ""}>
+                      {s.downloadBlocked ? "Bloqué" : "Autorisé"}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -198,6 +225,15 @@ export default function Students() {
                         <DropdownMenuItem onClick={() => toggleStatus(s.id)}>
                           <Power className="h-4 w-4 mr-2" />{s.status === "active" ? "Désactiver" : "Activer"}
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => toggleDownload(s.id)}>
+                          {s.downloadBlocked ? (
+                            <><Download className="h-4 w-4 mr-2" />Autoriser téléchargement</>
+                          ) : (
+                            <><XCircle className="h-4 w-4 mr-2" />Bloquer téléchargement</>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => { setResetTarget(s); setResetDialogOpen(true); }}>
                           <KeyRound className="h-4 w-4 mr-2" />Réinitialiser mdp
                         </DropdownMenuItem>
@@ -208,7 +244,7 @@ export default function Students() {
               ))}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucun étudiant trouvé</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Aucun étudiant trouvé</TableCell>
                 </TableRow>
               )}
             </TableBody>
