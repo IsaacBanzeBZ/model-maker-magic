@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Save, KeyRound, RotateCcw, GraduationCap } from "lucide-react";
+import { Save, KeyRound, RotateCcw, GraduationCap, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,14 +13,29 @@ export default function AdminSettings() {
   const { toast } = useToast();
   const [defaultStudentPassword, setDefaultStudentPassword] = useState("EduLedger2025");
   const [forcePasswordChange, setForcePasswordChange] = useState(true);
+  const [downloadEnabled, setDownloadEnabled] = useState(() => {
+    return localStorage.getItem("adminDownloadEnabled") !== "false";
+  });
 
   // Reset dialog
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [resetMatricule, setResetMatricule] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
 
+  const handleToggleDownload = (checked: boolean) => {
+    setDownloadEnabled(checked);
+    localStorage.setItem("adminDownloadEnabled", String(checked));
+    toast({
+      title: checked ? "Téléchargement activé" : "Téléchargement désactivé",
+      description: checked
+        ? "Les étudiants peuvent télécharger leur relevé de notes."
+        : "Les étudiants ne peuvent plus télécharger leur relevé de notes.",
+    });
+  };
+
   const handleSave = () => {
-    toast({ title: "Paramètres enregistrés", description: "Le mot de passe par défaut des étudiants a été mis à jour." });
+    localStorage.setItem("adminDownloadEnabled", String(downloadEnabled));
+    toast({ title: "Paramètres enregistrés", description: "Les paramètres ont été mis à jour." });
   };
 
   const handleResetPassword = () => {
@@ -68,6 +83,34 @@ export default function AdminSettings() {
               <p className="text-xs text-muted-foreground mt-0.5">Les étudiants devront changer leur mot de passe à la première connexion</p>
             </div>
             <Switch checked={forcePasswordChange} onCheckedChange={setForcePasswordChange} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Download Control */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-accent/20 flex items-center justify-center">
+              <Download className="h-4 w-4 text-accent-foreground" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Téléchargement du relevé de notes</CardTitle>
+              <CardDescription>Contrôler l'accès au téléchargement PDF pour les étudiants</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Autoriser le téléchargement</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {downloadEnabled
+                  ? "Les étudiants peuvent télécharger leur relevé de notes en PDF"
+                  : "Le téléchargement est actuellement bloqué pour tous les étudiants"}
+              </p>
+            </div>
+            <Switch checked={downloadEnabled} onCheckedChange={handleToggleDownload} />
           </div>
         </CardContent>
       </Card>

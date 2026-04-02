@@ -45,7 +45,13 @@ export default function StudentResults() {
     return sum + (avg || 0) * s.coefficient;
   }, 0) / subjects.reduce((sum, s) => sum + s.coefficient, 0);
 
+  const isDownloadEnabled = localStorage.getItem("adminDownloadEnabled") !== "false";
+
   const handleDownloadPDF = () => {
+    if (!isDownloadEnabled) {
+      toast({ title: "Téléchargement bloqué", description: "L'administrateur a désactivé le téléchargement des relevés de notes.", variant: "destructive" });
+      return;
+    }
     generateTranscriptPDF({
       studentName: "Jean Mukendi",
       matricule: "ETU-2025-0042",
@@ -73,9 +79,9 @@ export default function StudentResults() {
           <h1 className="text-2xl font-bold text-foreground">Mes résultats</h1>
           <p className="text-muted-foreground text-sm mt-1">Consultation de vos notes par matière</p>
         </div>
-        <Button onClick={handleDownloadPDF} className="gap-2">
+        <Button onClick={handleDownloadPDF} className="gap-2" disabled={!isDownloadEnabled} variant={isDownloadEnabled ? "default" : "secondary"}>
           <Download className="h-4 w-4" />
-          Télécharger le relevé PDF
+          {isDownloadEnabled ? "Télécharger le relevé PDF" : "Téléchargement désactivé"}
         </Button>
       </motion.div>
 
