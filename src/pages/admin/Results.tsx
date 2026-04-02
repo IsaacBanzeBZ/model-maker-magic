@@ -178,11 +178,11 @@ export default function Results() {
                   {filteredGrades.map((g) => (
                     <TableRow key={g.id}>
                       <TableCell className="font-medium">{g.student}</TableCell>
-                      <TableCell className="font-mono text-sm">{g.matricule}</TableCell>
+                      <TableCell className="font-mono text-sm hidden sm:table-cell">{g.matricule}</TableCell>
                       <TableCell>{g.subject}</TableCell>
                       <TableCell className={`text-center font-bold ${g.grade >= 10 ? "text-accent" : "text-destructive"}`}>{g.grade}/20</TableCell>
-                      <TableCell><Badge variant="outline">{g.type}</Badge></TableCell>
-                      <TableCell><Badge variant="secondary">{g.promotion}</Badge></TableCell>
+                      <TableCell className="hidden md:table-cell"><Badge variant="outline">{g.type}</Badge></TableCell>
+                      <TableCell className="hidden md:table-cell"><Badge variant="secondary">{g.promotion}</Badge></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
