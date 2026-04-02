@@ -22,8 +22,20 @@ export default function AdminSettings() {
   const [resetMatricule, setResetMatricule] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
 
+  const handleToggleDownload = (checked: boolean) => {
+    setDownloadEnabled(checked);
+    localStorage.setItem("adminDownloadEnabled", String(checked));
+    toast({
+      title: checked ? "Téléchargement activé" : "Téléchargement désactivé",
+      description: checked
+        ? "Les étudiants peuvent télécharger leur relevé de notes."
+        : "Les étudiants ne peuvent plus télécharger leur relevé de notes.",
+    });
+  };
+
   const handleSave = () => {
-    toast({ title: "Paramètres enregistrés", description: "Le mot de passe par défaut des étudiants a été mis à jour." });
+    localStorage.setItem("adminDownloadEnabled", String(downloadEnabled));
+    toast({ title: "Paramètres enregistrés", description: "Les paramètres ont été mis à jour." });
   };
 
   const handleResetPassword = () => {
