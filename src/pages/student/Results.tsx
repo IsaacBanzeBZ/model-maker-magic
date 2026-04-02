@@ -145,7 +145,7 @@ export default function StudentResults() {
                 />
               </div>
               <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full sm:w-[140px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
