@@ -157,6 +157,7 @@ export default function AdminActivityHistory() {
           <CardDescription>Détails des effectifs, taux de réussite et performance</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
