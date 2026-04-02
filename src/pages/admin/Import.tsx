@@ -159,6 +159,7 @@ export default function Import() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       )}
