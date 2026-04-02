@@ -141,7 +141,7 @@ export default function StudentResults() {
                   placeholder="Rechercher..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 w-[200px]"
+                  className="pl-9 w-full sm:w-[200px]"
                 />
               </div>
               <Select value={filter} onValueChange={setFilter}>
