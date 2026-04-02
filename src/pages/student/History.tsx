@@ -142,6 +142,7 @@ export default function StudentHistory() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
