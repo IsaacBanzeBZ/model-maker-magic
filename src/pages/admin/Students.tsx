@@ -203,13 +203,13 @@ export default function Students() {
                 <TableRow key={s.id}>
                   <TableCell className="font-mono text-sm">{s.matricule}</TableCell>
                   <TableCell className="font-medium">{s.nom} {s.postnom} {s.prenom}</TableCell>
-                  <TableCell><Badge variant="secondary">{s.promotion}</Badge></TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="hidden sm:table-cell"><Badge variant="secondary">{s.promotion}</Badge></TableCell>
+                  <TableCell className="text-center hidden md:table-cell">
                     <Badge variant={s.status === "active" ? "default" : "destructive"} className={s.status === "active" ? "bg-accent text-accent-foreground" : ""}>
                       {s.status === "active" ? "Actif" : "Inactif"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center hidden lg:table-cell">
                     <Badge variant={s.downloadBlocked ? "destructive" : "default"} className={!s.downloadBlocked ? "bg-accent text-accent-foreground" : ""}>
                       {s.downloadBlocked ? "Bloqué" : "Autorisé"}
                     </Badge>
