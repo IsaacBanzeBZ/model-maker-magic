@@ -250,6 +250,7 @@ export default function Students() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 
