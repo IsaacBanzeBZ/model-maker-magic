@@ -70,7 +70,7 @@ export default function AuditLogs() {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Logs d'audit</h1>
         <p className="text-muted-foreground text-sm mt-1">Suivi de toutes les activités sur la plateforme</p>

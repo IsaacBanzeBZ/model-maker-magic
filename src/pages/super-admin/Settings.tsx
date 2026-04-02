@@ -47,7 +47,7 @@ export default function SuperAdminSettings() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Paramètres système</h1>
         <p className="text-muted-foreground text-sm mt-1">Contrôle total de la plateforme EduLedger — mots de passe, sécurité et utilisateurs</p>
