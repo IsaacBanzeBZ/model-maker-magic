@@ -194,6 +194,7 @@ export default function UniversityDetails() {
               <CardTitle className="text-base">Détails par promotion</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
