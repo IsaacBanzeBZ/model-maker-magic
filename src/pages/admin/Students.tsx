@@ -230,7 +230,7 @@ export default function Students() {
                           {s.downloadBlocked ? (
                             <><Download className="h-4 w-4 mr-2" />Autoriser téléchargement</>
                           ) : (
-                            <><DownloadOff className="h-4 w-4 mr-2" />Bloquer téléchargement</>
+                            <><XCircle className="h-4 w-4 mr-2" />Bloquer téléchargement</>
                           )}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
