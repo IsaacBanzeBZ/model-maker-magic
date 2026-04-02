@@ -122,7 +122,7 @@ export default function Results() {
                     <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 w-full sm:w-[200px]" />
                   </div>
                   <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Tous types</SelectItem>
                       <SelectItem value="TP">TP</SelectItem>
