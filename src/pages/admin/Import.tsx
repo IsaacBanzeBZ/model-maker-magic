@@ -117,7 +117,7 @@ export default function Import() {
       {step === "preview" && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileSpreadsheet className="h-4 w-4" />
