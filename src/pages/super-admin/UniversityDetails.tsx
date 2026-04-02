@@ -221,6 +221,7 @@ export default function UniversityDetails() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
