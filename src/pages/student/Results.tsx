@@ -45,7 +45,13 @@ export default function StudentResults() {
     return sum + (avg || 0) * s.coefficient;
   }, 0) / subjects.reduce((sum, s) => sum + s.coefficient, 0);
 
+  const isDownloadEnabled = localStorage.getItem("adminDownloadEnabled") !== "false";
+
   const handleDownloadPDF = () => {
+    if (!isDownloadEnabled) {
+      toast({ title: "Téléchargement bloqué", description: "L'administrateur a désactivé le téléchargement des relevés de notes.", variant: "destructive" });
+      return;
+    }
     generateTranscriptPDF({
       studentName: "Jean Mukendi",
       matricule: "ETU-2025-0042",
