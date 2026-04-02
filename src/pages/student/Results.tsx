@@ -79,9 +79,9 @@ export default function StudentResults() {
           <h1 className="text-2xl font-bold text-foreground">Mes résultats</h1>
           <p className="text-muted-foreground text-sm mt-1">Consultation de vos notes par matière</p>
         </div>
-        <Button onClick={handleDownloadPDF} className="gap-2">
+        <Button onClick={handleDownloadPDF} className="gap-2" disabled={!isDownloadEnabled} variant={isDownloadEnabled ? "default" : "secondary"}>
           <Download className="h-4 w-4" />
-          Télécharger le relevé PDF
+          {isDownloadEnabled ? "Télécharger le relevé PDF" : "Téléchargement désactivé"}
         </Button>
       </motion.div>
 
