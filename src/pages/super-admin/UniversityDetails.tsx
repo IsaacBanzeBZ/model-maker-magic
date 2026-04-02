@@ -107,7 +107,7 @@ export default function UniversityDetails() {
       </motion.div>
 
       {/* Stats overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Étudiants", value: universityData.totalStudents.toLocaleString(), icon: Users },
           { label: "Admins", value: universityData.totalAdmins, icon: UserCog },
