@@ -186,14 +186,15 @@ export default function Students() {
           </div>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Matricule</TableHead>
                 <TableHead>Nom complet</TableHead>
-                <TableHead>Promotion</TableHead>
-                <TableHead className="text-center">Statut</TableHead>
-                <TableHead className="text-center">Téléchargement</TableHead>
+                <TableHead className="hidden sm:table-cell">Promotion</TableHead>
+                <TableHead className="text-center hidden md:table-cell">Statut</TableHead>
+                <TableHead className="text-center hidden lg:table-cell">Téléchargement</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
