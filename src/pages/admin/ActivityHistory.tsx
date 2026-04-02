@@ -81,7 +81,7 @@ export default function AdminActivityHistory() {
           <p className="text-muted-foreground text-sm mt-1">Suivi complet de votre activité et statistiques par période</p>
         </div>
         <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="annuel">Annuel</SelectItem>
             <SelectItem value="mensuel">Mensuel</SelectItem>
