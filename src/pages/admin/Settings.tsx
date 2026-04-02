@@ -13,6 +13,9 @@ export default function AdminSettings() {
   const { toast } = useToast();
   const [defaultStudentPassword, setDefaultStudentPassword] = useState("EduLedger2025");
   const [forcePasswordChange, setForcePasswordChange] = useState(true);
+  const [downloadEnabled, setDownloadEnabled] = useState(() => {
+    return localStorage.getItem("adminDownloadEnabled") !== "false";
+  });
 
   // Reset dialog
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
