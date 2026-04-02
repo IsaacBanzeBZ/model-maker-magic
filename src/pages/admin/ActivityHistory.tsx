@@ -74,14 +74,14 @@ export default function AdminActivityHistory() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Historique & Statistiques</h1>
           <p className="text-muted-foreground text-sm mt-1">Suivi complet de votre activité et statistiques par période</p>
         </div>
         <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="annuel">Annuel</SelectItem>
             <SelectItem value="mensuel">Mensuel</SelectItem>
@@ -157,6 +157,7 @@ export default function AdminActivityHistory() {
           <CardDescription>Détails des effectifs, taux de réussite et performance</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -187,6 +188,7 @@ export default function AdminActivityHistory() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

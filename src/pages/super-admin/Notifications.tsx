@@ -58,7 +58,7 @@ export default function SuperAdminNotifications() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
         <p className="text-muted-foreground text-sm mt-1">Envoyer des notifications aux universités et administrateurs</p>
@@ -79,7 +79,7 @@ export default function SuperAdminNotifications() {
               {/* Target */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Destinataire</Label>
-                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-2 gap-3">
+                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: "all_universities", label: "Toutes les universités", icon: Building2 },
                     { value: "one_university", label: "Une université", icon: Building2 },

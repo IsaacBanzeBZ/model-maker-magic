@@ -78,7 +78,7 @@ export default function Results() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Résultats & Notes</h1>
         <p className="text-muted-foreground text-sm mt-1">Gestion des notes et publication des résultats</p>
@@ -119,10 +119,10 @@ export default function Results() {
                 <div className="flex gap-2">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 w-[200px]" />
+                    <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 w-full sm:w-[200px]" />
                   </div>
                   <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Tous types</SelectItem>
                       <SelectItem value="TP">TP</SelectItem>
@@ -162,30 +162,32 @@ export default function Results() {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Étudiant</TableHead>
-                    <TableHead>Matricule</TableHead>
+                    <TableHead className="hidden sm:table-cell">Matricule</TableHead>
                     <TableHead>Matière</TableHead>
                     <TableHead className="text-center">Note</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Promotion</TableHead>
+                    <TableHead className="hidden md:table-cell">Type</TableHead>
+                    <TableHead className="hidden md:table-cell">Promotion</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredGrades.map((g) => (
                     <TableRow key={g.id}>
                       <TableCell className="font-medium">{g.student}</TableCell>
-                      <TableCell className="font-mono text-sm">{g.matricule}</TableCell>
+                      <TableCell className="font-mono text-sm hidden sm:table-cell">{g.matricule}</TableCell>
                       <TableCell>{g.subject}</TableCell>
                       <TableCell className={`text-center font-bold ${g.grade >= 10 ? "text-accent" : "text-destructive"}`}>{g.grade}/20</TableCell>
-                      <TableCell><Badge variant="outline">{g.type}</Badge></TableCell>
-                      <TableCell><Badge variant="secondary">{g.promotion}</Badge></TableCell>
+                      <TableCell className="hidden md:table-cell"><Badge variant="outline">{g.type}</Badge></TableCell>
+                      <TableCell className="hidden md:table-cell"><Badge variant="secondary">{g.promotion}</Badge></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -197,6 +199,7 @@ export default function Results() {
               <CardDescription>Publiez ou retirez les résultats visibles par les étudiants</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -229,6 +232,7 @@ export default function Results() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

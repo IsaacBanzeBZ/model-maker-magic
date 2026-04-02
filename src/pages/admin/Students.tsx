@@ -121,7 +121,7 @@ export default function Students() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Gestion des étudiants</h1>
@@ -176,7 +176,7 @@ export default function Students() {
               <Input placeholder="Rechercher par nom, matricule..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
             </div>
             <Select value={promoFilter} onValueChange={setPromoFilter}>
-              <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {promotions.map((p) => (
                   <SelectItem key={p} value={p}>{p}</SelectItem>
@@ -186,14 +186,15 @@ export default function Students() {
           </div>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Matricule</TableHead>
                 <TableHead>Nom complet</TableHead>
-                <TableHead>Promotion</TableHead>
-                <TableHead className="text-center">Statut</TableHead>
-                <TableHead className="text-center">Téléchargement</TableHead>
+                <TableHead className="hidden sm:table-cell">Promotion</TableHead>
+                <TableHead className="text-center hidden md:table-cell">Statut</TableHead>
+                <TableHead className="text-center hidden lg:table-cell">Téléchargement</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -202,13 +203,13 @@ export default function Students() {
                 <TableRow key={s.id}>
                   <TableCell className="font-mono text-sm">{s.matricule}</TableCell>
                   <TableCell className="font-medium">{s.nom} {s.postnom} {s.prenom}</TableCell>
-                  <TableCell><Badge variant="secondary">{s.promotion}</Badge></TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="hidden sm:table-cell"><Badge variant="secondary">{s.promotion}</Badge></TableCell>
+                  <TableCell className="text-center hidden md:table-cell">
                     <Badge variant={s.status === "active" ? "default" : "destructive"} className={s.status === "active" ? "bg-accent text-accent-foreground" : ""}>
                       {s.status === "active" ? "Actif" : "Inactif"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center hidden lg:table-cell">
                     <Badge variant={s.downloadBlocked ? "destructive" : "default"} className={!s.downloadBlocked ? "bg-accent text-accent-foreground" : ""}>
                       {s.downloadBlocked ? "Bloqué" : "Autorisé"}
                     </Badge>
@@ -249,6 +250,7 @@ export default function Students() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

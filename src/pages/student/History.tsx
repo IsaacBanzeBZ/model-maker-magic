@@ -60,7 +60,7 @@ export default function StudentHistory() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Historique</h1>
@@ -72,7 +72,7 @@ export default function StudentHistory() {
             PDF
           </Button>
           <Select value={selectedYear} onValueChange={setSelectedYear}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <Calendar className="h-4 w-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
@@ -117,6 +117,7 @@ export default function StudentHistory() {
           <CardDescription>{yearData.subjects.length} matières</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -141,6 +142,7 @@ export default function StudentHistory() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

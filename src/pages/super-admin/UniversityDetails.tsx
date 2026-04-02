@@ -83,9 +83,9 @@ export default function UniversityDetails() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/super-admin/universities")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -107,7 +107,7 @@ export default function UniversityDetails() {
       </motion.div>
 
       {/* Stats overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Étudiants", value: universityData.totalStudents.toLocaleString(), icon: Users },
           { label: "Admins", value: universityData.totalAdmins, icon: UserCog },
@@ -132,7 +132,7 @@ export default function UniversityDetails() {
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium text-muted-foreground">Période :</span>
         <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="annuel">Annuel</SelectItem>
             <SelectItem value="mensuel">Mensuel</SelectItem>
@@ -194,6 +194,7 @@ export default function UniversityDetails() {
               <CardTitle className="text-base">Détails par promotion</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -220,6 +221,7 @@ export default function UniversityDetails() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

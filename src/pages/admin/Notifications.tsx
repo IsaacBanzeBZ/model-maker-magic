@@ -46,7 +46,7 @@ export default function AdminNotifications() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-foreground">Notifications étudiants</h1>
         <p className="text-muted-foreground text-sm mt-1">Envoyer des notifications par email ou SMS</p>
@@ -66,7 +66,7 @@ export default function AdminNotifications() {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>Destinataire</Label>
-                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-3 gap-3">
+                <RadioGroup value={targetType} onValueChange={(v) => setTargetType(v as typeof targetType)} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { value: "all", label: "Tous les étudiants", icon: Users },
                     { value: "promotion", label: "Par promotion", icon: GraduationCap },
