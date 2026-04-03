@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -19,6 +20,7 @@ type StudentLoginValues = z.infer<typeof studentLoginSchema>;
 
 const StudentLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -126,11 +128,19 @@ const StudentLogin = () => {
                 )}
               />
 
+              <div className="flex justify-end">
+                <button type="button" onClick={() => setForgotOpen(true)} className="text-sm text-primary hover:underline">
+                  Mot de passe oublié ?
+                </button>
+              </div>
+
               <Button type="submit" className="w-full h-11 bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </form>
           </Form>
+
+          <ForgotPasswordDialog open={forgotOpen} onOpenChange={setForgotOpen} type="matricule" />
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Vous êtes administrateur ?{" "}
