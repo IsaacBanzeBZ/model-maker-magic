@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/StudentSidebar";
 import { ForcePasswordChangeDialog } from "@/components/ForcePasswordChangeDialog";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function StudentLayout() {
   // Simulate first login detection (in production, check from backend/JWT)
