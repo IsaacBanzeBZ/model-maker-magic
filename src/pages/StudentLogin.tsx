@@ -20,6 +20,7 @@ type StudentLoginValues = z.infer<typeof studentLoginSchema>;
 
 const StudentLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
