@@ -140,6 +140,8 @@ const StudentLogin = () => {
             </form>
           </Form>
 
+          <ForgotPasswordDialog open={forgotOpen} onOpenChange={setForgotOpen} type="matricule" />
+
           <p className="text-center text-sm text-muted-foreground mt-8">
             Vous êtes administrateur ?{" "}
             <Link to="/login/admin" className="text-primary font-medium hover:underline">

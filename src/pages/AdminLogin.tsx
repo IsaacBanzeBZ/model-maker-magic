@@ -141,6 +141,8 @@ const AdminLogin = () => {
             </form>
           </Form>
 
+          <ForgotPasswordDialog open={forgotOpen} onOpenChange={setForgotOpen} type="email" />
+
           <p className="text-center text-sm text-muted-foreground mt-8">
             Vous êtes étudiant ?{" "}
             <Link to="/login/student" className="text-primary font-medium hover:underline">
