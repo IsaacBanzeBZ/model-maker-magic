@@ -142,6 +142,12 @@ const SuperAdminLogin = () => {
                 )}
               />
 
+              <div className="flex justify-end">
+                <button type="button" onClick={() => setForgotOpen(true)} className="text-sm text-primary hover:underline">
+                  Mot de passe oublié ?
+                </button>
+              </div>
+
               <Button type="submit" className="w-full h-11" disabled={isLoading}>
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
