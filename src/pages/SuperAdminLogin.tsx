@@ -23,6 +23,7 @@ const DEFAULT_PASSWORD = "superadmin123";
 
 const SuperAdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
