@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SuperAdminSidebar } from "@/components/SuperAdminSidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function SuperAdminLayout() {
   return (
