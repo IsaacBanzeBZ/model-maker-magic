@@ -20,6 +20,7 @@ type AdminLoginValues = z.infer<typeof adminLoginSchema>;
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
