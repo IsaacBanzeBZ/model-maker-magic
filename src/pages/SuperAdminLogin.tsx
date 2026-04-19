@@ -4,12 +4,13 @@ import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { ShieldCheck, Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Lock, Mail, Eye, EyeOff, ArrowLeft, CheckCircle2, GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
+import loginSuperAdminImg from "@/assets/login-superadmin.jpg";
 
 const superAdminLoginSchema = z.object({
   email: z.string().trim().email("Adresse email invalide").max(255),
@@ -47,37 +48,68 @@ const SuperAdminLogin = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-90" />
-        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, hsl(var(--accent) / 0.15) 0%, transparent 50%)" }} />
+      {/* Left panel — image + texte marketing */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img
+          src={loginSuperAdminImg}
+          alt="Centre de contrôle Super Administration EduLedger"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-secondary/90" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 text-center px-12"
+          className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground w-full"
         >
-          <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-8">
-            <ShieldCheck className="w-10 h-10 text-primary-foreground" />
+          <Link to="/" className="inline-flex items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground transition-colors w-fit">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+              <GraduationCap className="h-5 w-5" />
+            </div>
+            <span className="text-xl font-bold">EduLedger</span>
+          </Link>
+
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-3 py-1 text-xs font-semibold mb-6">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Accès Super Administration
+            </div>
+            <h2 className="text-4xl font-extrabold leading-tight mb-4">
+              Le contrôle total,<br />à votre portée.
+            </h2>
+            <p className="text-primary-foreground/85 text-lg leading-relaxed max-w-md mb-8">
+              Supervisez l'écosystème EduLedger : universités, administrateurs, audit logs et configurations globales depuis une console unique.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Gestion multi-universités centralisée",
+                "Audit logs et traçabilité complète",
+                "Sécurité et permissions granulaires",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-primary-foreground/90">
+                  <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
+                  <span className="text-sm font-medium">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-            Super Administration
-          </h2>
-          <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-md">
-            Accès réservé au Super Admin. Gérez les universités, les administrateurs et la plateforme entière.
+
+          <p className="text-sm text-primary-foreground/70">
+            « La connaissance est le pouvoir. » — Francis Bacon
           </p>
         </motion.div>
       </div>
 
       {/* Right panel - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 lg:hidden">
             <ArrowLeft className="w-4 h-4" />
             Retour à l'accueil
           </Link>
@@ -87,7 +119,6 @@ const SuperAdminLogin = () => {
             <p className="text-muted-foreground">Accédez au panneau de contrôle principal</p>
           </div>
 
-          {/* Default credentials hint */}
           <div className="mb-6 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
             <p className="font-medium text-foreground mb-1">Identifiants par défaut :</p>
             <p>Email : <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{DEFAULT_EMAIL}</code></p>
