@@ -4,12 +4,13 @@ import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { Building2, Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Building2, Lock, Mail, Eye, EyeOff, ArrowLeft, CheckCircle2, GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
+import loginAdminImg from "@/assets/login-admin.jpg";
 
 const adminLoginSchema = z.object({
   email: z.string().trim().email("Adresse email invalide").max(255),
@@ -31,7 +32,6 @@ const AdminLogin = () => {
 
   const onSubmit = async (data: AdminLoginValues) => {
     setIsLoading(true);
-    // TODO: Intégrer avec Lovable Cloud
     setTimeout(() => {
       setIsLoading(false);
       toast({ title: "Connexion réussie", description: `Bienvenue, ${data.email}` });
@@ -41,37 +41,68 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-90" />
-        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, hsl(var(--accent) / 0.15) 0%, transparent 50%)" }} />
+      {/* Left panel — image + texte marketing */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img
+          src={loginAdminImg}
+          alt="Administratrice universitaire dans son bureau"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-secondary/80 to-primary/85" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 text-center px-12"
+          className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground w-full"
         >
-          <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-8">
-            <Building2 className="w-10 h-10 text-primary-foreground" />
+          <Link to="/" className="inline-flex items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground transition-colors w-fit">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+              <GraduationCap className="h-5 w-5" />
+            </div>
+            <span className="text-xl font-bold">EduLedger</span>
+          </Link>
+
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-3 py-1 text-xs font-semibold mb-6">
+              <Building2 className="h-3.5 w-3.5" />
+              Espace Administration
+            </div>
+            <h2 className="text-4xl font-extrabold leading-tight mb-4">
+              Pilotez votre université<br />en toute sérénité.
+            </h2>
+            <p className="text-primary-foreground/85 text-lg leading-relaxed max-w-md mb-8">
+              Importez, gérez et publiez les résultats de vos étudiants depuis un tableau de bord pensé pour les professionnels de l'éducation.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Import Excel intelligent en un clic",
+                "Publication instantanée des notes",
+                "Gestion multi-promotions illimitée",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-primary-foreground/90">
+                  <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
+                  <span className="text-sm font-medium">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-            Espace Administration
-          </h2>
-          <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-md">
-            Gérez vos étudiants, importez les notes et publiez les résultats en toute simplicité.
+
+          <p className="text-sm text-primary-foreground/70">
+            « Former l'esprit sans former le cœur n'est pas former du tout. » — Aristote
           </p>
         </motion.div>
       </div>
 
       {/* Right panel - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 lg:hidden">
             <ArrowLeft className="w-4 h-4" />
             Retour à l'accueil
           </Link>

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Upload, Shield, BarChart3, Users, Building2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { GraduationCap, Upload, Shield, BarChart3, Users, Building2, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import heroStudents from "@/assets/hero-students.jpg";
 
 const features = [
   {
@@ -72,65 +73,98 @@ const Index = () => {
       </nav>
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-32 pb-20">
+      <section className="relative overflow-hidden pt-28 pb-20">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="container relative mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-accent" />
-              Plateforme SaaS académique
-            </div>
-            <h1 className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Digitalisez la gestion de vos{" "}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                résultats académiques
-              </span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              EduLedger centralise la gestion des notes, des étudiants et des promotions
-              pour les universités. Import Excel, publication instantanée, accès sécurisé.
-            </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="h-12 px-8 text-base font-semibold">
-                Démarrer gratuitement
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="h-12 px-8 text-base">
-                Voir la démo
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Hero visual */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mx-auto mt-16 max-w-5xl"
-          >
-            <div className="relative rounded-2xl border border-border bg-card p-2 shadow-2xl shadow-primary/10">
-              <div className="rounded-xl bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 sm:p-12">
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  {stats.map((stat, i) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5 + i * 0.1 }}
-                      className="rounded-xl border border-border bg-card p-6 text-center"
-                    >
-                      <div className="text-3xl font-extrabold text-primary">{stat.value}</div>
-                      <div className="mt-1 text-sm font-medium text-muted-foreground">{stat.label}</div>
-                    </motion.div>
-                  ))}
-                </div>
+        <div className="container relative mx-auto px-4">
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            {/* Left — texte */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="text-center lg:text-left"
+            >
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-accent" />
+                Plateforme SaaS académique
               </div>
-            </div>
-          </motion.div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                Digitalisez la gestion de vos{" "}
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  résultats académiques
+                </span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg text-muted-foreground lg:mx-0 mx-auto">
+                EduLedger centralise la gestion des notes, des étudiants et des promotions
+                pour les universités. Import Excel, publication instantanée, accès sécurisé.
+              </p>
+              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start sm:justify-center">
+                <Button size="lg" className="h-12 px-8 text-base font-semibold">
+                  Démarrer gratuitement
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button variant="outline" size="lg" className="h-12 px-8 text-base">
+                  Voir la démo
+                </Button>
+              </div>
+
+              {/* Stats inline */}
+              <div className="mt-12 grid grid-cols-4 gap-4 border-t border-border pt-8">
+                {stats.map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.08 }}
+                    className="text-center lg:text-left"
+                  >
+                    <div className="text-2xl font-extrabold text-primary sm:text-3xl">{stat.value}</div>
+                    <div className="mt-1 text-xs font-medium text-muted-foreground sm:text-sm">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right — image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 blur-2xl" />
+              <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-primary/20">
+                <img
+                  src={heroStudents}
+                  alt="Étudiants africains utilisant EduLedger sur un campus universitaire"
+                  width={1280}
+                  height={1280}
+                  className="h-full w-full object-cover aspect-[4/5] sm:aspect-square"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+                {/* Floating card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="absolute bottom-6 left-6 right-6 rounded-2xl border border-border bg-card/95 p-4 shadow-xl backdrop-blur-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">Résultats publiés</p>
+                      <p className="text-xs text-muted-foreground">+2 340 étudiants notifiés en temps réel</p>
+                    </div>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
