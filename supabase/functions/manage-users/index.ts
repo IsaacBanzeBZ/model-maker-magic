@@ -9,12 +9,14 @@ const passwordSchema = z.string().min(10).max(128);
 const optionalText = (max: number) => z.string().trim().max(max).optional().nullable();
 
 const requestSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("bootstrap-status") }),
   z.object({ action: z.literal("bootstrap-super-admin"), fullName: nameSchema }),
   z.object({ action: z.literal("create-university"), name: nameSchema, code: z.string().trim().min(2).max(20), contactEmail: emailSchema, phone: optionalText(40), address: optionalText(300) }),
   z.object({ action: z.literal("update-university"), universityId: z.string().uuid(), name: nameSchema, code: z.string().trim().min(2).max(20), contactEmail: emailSchema, phone: optionalText(40), address: optionalText(300) }),
   z.object({ action: z.literal("set-university-active"), universityId: z.string().uuid(), active: z.boolean() }),
   z.object({ action: z.literal("archive-university"), universityId: z.string().uuid() }),
   z.object({ action: z.literal("create-admin"), universityId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40), password: passwordSchema }),
+  z.object({ action: z.literal("create-promotion"), universityId: z.string().uuid().optional(), name: z.string().trim().min(1).max(80) }),
   z.object({ action: z.literal("create-student"), universityId: z.string().uuid().optional(), promotionId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40), password: passwordSchema }),
   z.object({ action: z.literal("update-user"), userId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40) }),
   z.object({ action: z.literal("set-user-status"), userId: z.string().uuid(), status: z.enum(["active", "inactive", "banned"]) }),
@@ -136,6 +138,7 @@ const getTargetScope = async (userId: string): Promise<AccountScope> => {
     .select("role, university_id")
     .eq("user_id", userId);
   if (error) fail("Impossible de vérifier le compte ciblé.", 500);
+  if (data?.some((item) => item.role === "super_admin")) fail("Le compte propriétaire ne peut pas être modifié depuis cette action.", 403);
   const target = data?.find((item) => item.role !== "super_admin");
   if (!target) fail("Le compte est introuvable ou ne peut pas être modifié.", 404);
   return { role: target.role as EduLedgerRole, universityId: target.university_id };
@@ -152,7 +155,6 @@ const createAuthAccount = async (input: {
   phone?: string | null;
   role: "university_admin" | "student";
   universityId: string;
-  promotionId?: string;
 }) => {
   const { data, error } = await service.auth.admin.createUser({
     email: input.email,
@@ -182,26 +184,9 @@ const createAuthAccount = async (input: {
     });
     if (roleError) throw roleError;
 
-    if (input.promotionId) {
-      const { data: student } = await service
-        .from("students")
-        .select("matricule")
-        .eq("matricule", input.promotionId)
-        .maybeSingle();
-      if (student) throw new Error("Matricule collision");
-      const { error: studentError } = await service.from("students").insert({
-        user_id: userId,
-        university_id: input.universityId,
-        promotion_id: input.promotionId,
-        matricule: input.promotionId,
-      });
-      if (studentError) throw studentError;
-    }
   } catch (error) {
     await service.auth.admin.deleteUser(userId);
-    if (error instanceof Error && error.message.includes("promotion_id")) {
-      fail("La promotion sélectionnée n’appartient pas à cette université.", 400);
-    }
+    console.error("New account profile could not be saved");
     fail("Le compte n’a pas pu être enregistré complètement.", 500);
   }
 
@@ -209,9 +194,9 @@ const createAuthAccount = async (input: {
 };
 
 const createStudentAccount = async (actor: Actor, request: Extract<ManagementRequest, { action: "create-student" }>) => {
+  if (actor.role !== "super_admin" && actor.role !== "university_admin") fail("Action non autorisée.", 403);
   const universityId = actor.role === "university_admin" ? actor.universityId : request.universityId;
   if (!universityId) fail("Choisissez une université.");
-  if (actor.role !== "super_admin" && actor.role !== "university_admin") fail("Action non autorisée.", 403);
   await ensureUniversityActive(universityId);
   const { data: promotion, error } = await service
     .from("promotions")
@@ -292,6 +277,14 @@ const handleStudentLogin = async (request: Extract<ManagementRequest, { action: 
 
 const handleManagementRequest = async (request: Request, body: ManagementRequest) => {
   if (body.action === "student-login") return await handleStudentLogin(body);
+  if (body.action === "bootstrap-status") {
+    const { count, error } = await service
+      .from("user_roles")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "super_admin");
+    if (error) fail("Impossible de vérifier la configuration initiale.", 500);
+    return { available: (count ?? 0) === 0 };
+  }
 
   const user = await getSignedInUser(request);
   if (body.action === "bootstrap-super-admin") {
@@ -357,11 +350,10 @@ const handleManagementRequest = async (request: Request, body: ManagementRequest
     }
     case "set-university-active": {
       requireSuperAdmin(actor);
-      const { error } = await service.from("universities").update({
-        is_active: body.active,
-        deleted_at: body.active ? null : null,
-        updated_at: new Date().toISOString(),
-      }).eq("id", body.universityId);
+      const updates = body.active
+        ? { is_active: true, deleted_at: null, updated_at: new Date().toISOString() }
+        : { is_active: false, updated_at: new Date().toISOString() };
+      const { error } = await service.from("universities").update(updates).eq("id", body.universityId);
       if (error) fail("Le statut de l’université n’a pas pu être modifié.", 400);
       await recordAudit(actor, body.active ? "university.activated" : "university.deactivated", "university", body.universityId);
       return { success: true };
@@ -386,6 +378,20 @@ const handleManagementRequest = async (request: Request, body: ManagementRequest
       });
       await recordAudit(actor, "university_admin.created", "university_admin", body.universityId, userId);
       return { userId };
+    }
+    case "create-promotion": {
+      if (actor.role !== "super_admin" && actor.role !== "university_admin") fail("Action non autorisée.", 403);
+      const universityId = actor.role === "university_admin" ? actor.universityId : body.universityId;
+      if (!universityId) fail("Choisissez une université.");
+      await ensureUniversityActive(universityId);
+      const { data, error } = await service
+        .from("promotions")
+        .insert({ university_id: universityId, name: body.name })
+        .select("id")
+        .single();
+      if (error || !data) fail(error?.code === "23505" ? "Cette promotion existe déjà dans cette université." : "La promotion n’a pas pu être créée.", 400);
+      await recordAudit(actor, "promotion.created", "promotion", universityId, null, { promotionId: data.id, name: body.name });
+      return { promotionId: data.id };
     }
     case "create-student":
       return await createStudentAccount(actor, body);
