@@ -2,9 +2,11 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SuperAdminSidebar } from "@/components/SuperAdminSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { RoleGate } from "@/components/RoleGate";
 
 export default function SuperAdminLayout() {
   return (
+    <RoleGate role="super_admin">
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <SuperAdminSidebar />
@@ -20,5 +22,6 @@ export default function SuperAdminLayout() {
         </div>
       </div>
     </SidebarProvider>
+    </RoleGate>
   );
 }

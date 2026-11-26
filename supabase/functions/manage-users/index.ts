@@ -15,13 +15,14 @@ const requestSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("update-university"), universityId: z.string().uuid(), name: nameSchema, code: z.string().trim().min(2).max(20), contactEmail: emailSchema, phone: optionalText(40), address: optionalText(300) }),
   z.object({ action: z.literal("set-university-active"), universityId: z.string().uuid(), active: z.boolean() }),
   z.object({ action: z.literal("archive-university"), universityId: z.string().uuid() }),
-  z.object({ action: z.literal("create-admin"), universityId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40), password: passwordSchema }),
+  z.object({ action: z.literal("create-admin"), universityId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40) }),
   z.object({ action: z.literal("create-promotion"), universityId: z.string().uuid().optional(), name: z.string().trim().min(1).max(80) }),
-  z.object({ action: z.literal("create-student"), universityId: z.string().uuid().optional(), promotionId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40), password: passwordSchema }),
+  z.object({ action: z.literal("create-student"), universityId: z.string().uuid().optional(), promotionId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40) }),
   z.object({ action: z.literal("update-user"), userId: z.string().uuid(), fullName: nameSchema, email: emailSchema, phone: optionalText(40) }),
   z.object({ action: z.literal("set-user-status"), userId: z.string().uuid(), status: z.enum(["active", "inactive", "banned"]) }),
   z.object({ action: z.literal("reset-password"), userId: z.string().uuid(), password: passwordSchema }),
   z.object({ action: z.literal("change-my-password"), password: passwordSchema }),
+  z.object({ action: z.literal("sync-my-email") }),
   z.object({ action: z.literal("student-login"), matricule: z.string().trim().min(3).max(50), password: z.string().min(1).max(128) }),
 ]);
 
@@ -151,20 +152,16 @@ const ensureCanManage = (actor: Actor, target: AccountScope) => {
 const createAuthAccount = async (input: {
   fullName: string;
   email: string;
-  password: string;
   phone?: string | null;
-  role: "university_admin" | "student";
   universityId: string;
 }) => {
-  const { data, error } = await service.auth.admin.createUser({
-    email: input.email,
-    password: input.password,
-    email_confirm: true,
-    user_metadata: { full_name: input.fullName },
+  const { data, error } = await service.auth.admin.inviteUserByEmail(input.email, {
+    data: { full_name: input.fullName },
   });
-  if (error || !data.user) fail(error?.message.includes("already") ? "Cette adresse email est déjà utilisée." : "La création du compte a échoué.", 409);
+  if (error || !data.user) {
+    fail(error?.message.toLowerCase().includes("already") ? "Cette adresse email est déjà utilisée." : "L’invitation du compte a échoué.", 409);
+  }
   const userId = data.user.id;
-
   try {
     const { error: profileError } = await service.from("profiles").insert({
       id: userId,
@@ -176,20 +173,16 @@ const createAuthAccount = async (input: {
       must_change_password: true,
     });
     if (profileError) throw profileError;
-
     const { error: roleError } = await service.from("user_roles").insert({
       user_id: userId,
-      role: input.role,
+      role: "university_admin",
       university_id: input.universityId,
     });
     if (roleError) throw roleError;
-
-  } catch (error) {
+  } catch {
     await service.auth.admin.deleteUser(userId);
-    console.error("New account profile could not be saved");
     fail("Le compte n’a pas pu être enregistré complètement.", 500);
   }
-
   return userId;
 };
 
@@ -198,30 +191,34 @@ const createStudentAccount = async (actor: Actor, request: Extract<ManagementReq
   const universityId = actor.role === "university_admin" ? actor.universityId : request.universityId;
   if (!universityId) fail("Choisissez une université.");
   await ensureUniversityActive(universityId);
-  const { data: promotion, error } = await service
+  const { data: promotion, error: promotionError } = await service
     .from("promotions")
     .select("id")
     .eq("id", request.promotionId)
     .eq("university_id", universityId)
     .eq("is_active", true)
     .maybeSingle();
-  if (error || !promotion) fail("La promotion sélectionnée n’appartient pas à cette université.");
+  if (promotionError || !promotion) fail("La promotion sélectionnée n’appartient pas à cette université.");
 
   let matricule = "";
+  let uniqueMatricule = false;
   for (let attempt = 0; attempt < 5; attempt += 1) {
     matricule = `ETU-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
     const { data: existing } = await service.from("students").select("id").eq("matricule", matricule).maybeSingle();
-    if (!existing) break;
+    if (!existing) {
+      uniqueMatricule = true;
+      break;
+    }
   }
-  const { data: authAccount, error: authError } = await service.auth.admin.createUser({
-    email: request.email,
-    password: request.password,
-    email_confirm: true,
-    user_metadata: { full_name: request.fullName },
-  });
-  if (authError || !authAccount.user) fail(authError?.message.includes("already") ? "Cette adresse email est déjà utilisée." : "La création du compte a échoué.", 409);
-  const userId = authAccount.user.id;
+  if (!uniqueMatricule) fail("Un matricule unique n’a pas pu être généré. Réessayez.", 500);
 
+  const { data: invited, error: inviteError } = await service.auth.admin.inviteUserByEmail(request.email, {
+    data: { full_name: request.fullName },
+  });
+  if (inviteError || !invited.user) {
+    fail(inviteError?.message.toLowerCase().includes("already") ? "Cette adresse email est déjà utilisée." : "L’invitation du compte a échoué.", 409);
+  }
+  const userId = invited.user.id;
   try {
     const { error: profileError } = await service.from("profiles").insert({
       id: userId,
@@ -233,7 +230,11 @@ const createStudentAccount = async (actor: Actor, request: Extract<ManagementReq
       must_change_password: true,
     });
     if (profileError) throw profileError;
-    const { error: roleError } = await service.from("user_roles").insert({ user_id: userId, role: "student", university_id: universityId });
+    const { error: roleError } = await service.from("user_roles").insert({
+      user_id: userId,
+      role: "student",
+      university_id: universityId,
+    });
     if (roleError) throw roleError;
     const { error: studentError } = await service.from("students").insert({
       user_id: userId,
@@ -246,7 +247,6 @@ const createStudentAccount = async (actor: Actor, request: Extract<ManagementReq
     await service.auth.admin.deleteUser(userId);
     fail("Le compte étudiant n’a pas pu être enregistré complètement.", 500);
   }
-
   await recordAudit(actor, "student.created", "student", universityId, userId, { matricule });
   return { userId, matricule };
 };
@@ -259,18 +259,20 @@ const handleStudentLogin = async (request: Extract<ManagementRequest, { action: 
     .eq("matricule", request.matricule)
     .maybeSingle();
   if (studentError || !student) fail("Matricule ou mot de passe incorrect.", 401);
-  const [{ data: profile }, { data: role }, { data: university }] = await Promise.all([
-    service.from("profiles").select("email, status").eq("id", student.user_id).maybeSingle(),
+  const [{ data: profile }, { data: role }, { data: university }, authAccount] = await Promise.all([
+    service.from("profiles").select("status").eq("id", student.user_id).maybeSingle(),
     service.from("user_roles").select("role").eq("user_id", student.user_id).eq("role", "student").maybeSingle(),
     service.from("universities").select("is_active, deleted_at").eq("id", student.university_id).maybeSingle(),
+    service.auth.admin.getUserById(student.user_id),
   ]);
-  if (!profile || !role || profile.status !== "active" || !university?.is_active || university.deleted_at) {
-    fail("Ce compte est suspendu ou désactivé.", 403);
+  const email = authAccount.data.user?.email;
+  if (!profile || !role || profile.status !== "active" || !university?.is_active || university.deleted_at || authAccount.error || !email) {
+    fail("Matricule ou mot de passe incorrect.", 401);
   }
   const publicClient = createClient(backendUrl, publishableKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
-  const { data, error } = await publicClient.auth.signInWithPassword({ email: profile.email, password: request.password });
+  const { data, error } = await publicClient.auth.signInWithPassword({ email, password: request.password });
   if (error || !data.session) fail("Matricule ou mot de passe incorrect.", 401);
   return { session: data.session };
 };
@@ -372,7 +374,6 @@ const handleManagementRequest = async (request: Request, body: ManagementRequest
         fullName: body.fullName,
         email: body.email,
         phone: body.phone,
-        password: body.password,
         role: "university_admin",
         universityId: body.universityId,
       });
@@ -400,19 +401,20 @@ const handleManagementRequest = async (request: Request, body: ManagementRequest
       ensureCanManage(actor, target);
       const { data: current, error: currentError } = await service.from("profiles").select("email, university_id").eq("id", body.userId).maybeSingle();
       if (currentError || !current) fail("Le compte est introuvable.", 404);
-      if (body.email.toLowerCase() !== current.email.toLowerCase()) {
-        const { error } = await service.auth.admin.updateUserById(body.userId, { email: body.email, email_confirm: true });
-        if (error) fail("L’adresse email n’a pas pu être mise à jour.", 400);
+      const emailChanged = body.email.toLowerCase() !== current.email.toLowerCase();
+      if (emailChanged) {
+        if (actor.role !== "super_admin") fail("Seul le Super Admin peut modifier l’adresse de connexion.", 403);
+        const { error } = await service.auth.admin.updateUserById(body.userId, { email: body.email });
+        if (error) fail("La vérification de la nouvelle adresse email n’a pas pu être lancée.", 400);
       }
       const { error } = await service.from("profiles").update({
         full_name: body.fullName,
-        email: body.email,
         phone: body.phone ?? null,
         updated_at: new Date().toISOString(),
       }).eq("id", body.userId);
       if (error) fail("Les informations du compte n’ont pas pu être enregistrées.", 400);
-      await recordAudit(actor, "account.updated", target.role, target.universityId, body.userId);
-      return { success: true };
+      await recordAudit(actor, "account.updated", target.role, target.universityId, body.userId, { emailChanged });
+      return { success: true, emailVerificationRequired: emailChanged };
     }
     case "set-user-status": {
       const target = await getTargetScope(body.userId);
@@ -439,6 +441,12 @@ const handleManagementRequest = async (request: Request, body: ManagementRequest
       if (error) fail("Le mot de passe a été modifié, mais le profil n’a pas pu être mis à jour.", 500);
       await recordAudit(actor, "account.password_changed", actor.role, actor.universityId, user.id);
       return { success: true };
+    }
+    case "sync-my-email": {
+      if (!user.email || !user.email_confirmed_at) return { synced: false, emailConfirmationPending: true };
+      const { error } = await service.from("profiles").update({ email: user.email, updated_at: new Date().toISOString() }).eq("id", user.id);
+      if (error) fail("L’adresse email confirmée n’a pas pu être synchronisée.", 500);
+      return { synced: true };
     }
     default:
       return fail("Action non prise en charge.", 400);

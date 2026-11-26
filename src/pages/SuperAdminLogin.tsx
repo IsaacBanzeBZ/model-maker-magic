@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import loginSuperAdminImg from "@/assets/login-superadmin.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { manageAccount } from "@/lib/account-management";
 
 const superAdminLoginSchema = z.object({
   email: z.string().trim().email("Adresse email invalide").max(255),
@@ -19,14 +21,23 @@ const superAdminLoginSchema = z.object({
 
 type SuperAdminLoginValues = z.infer<typeof superAdminLoginSchema>;
 
-const DEFAULT_EMAIL = "superadmin@eduledger.com";
-const DEFAULT_PASSWORD = "superadmin123";
-
 const SuperAdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [bootstrapAvailable, setBootstrapAvailable] = useState(false);
+  const [setupMode, setSetupMode] = useState(false);
+  const [setupName, setSetupName] = useState("");
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let active = true;
+    void manageAccount<{ available: boolean }>({ action: "bootstrap-status" })
+      .then((result) => { if (active) setBootstrapAvailable(result.available); })
+      .catch(() => { if (active) setBootstrapAvailable(false); });
+    return () => { active = false; };
+  }, []);
 
   const form = useForm<SuperAdminLoginValues>({
     resolver: zodResolver(superAdminLoginSchema),
@@ -35,15 +46,58 @@ const SuperAdminLogin = () => {
 
   const onSubmit = async (data: SuperAdminLoginValues) => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (data.email === DEFAULT_EMAIL && data.password === DEFAULT_PASSWORD) {
-        toast({ title: "Connexion réussie", description: "Bienvenue, Super Admin" });
-        navigate("/super-admin");
-      } else {
-        toast({ title: "Erreur", description: "Email ou mot de passe incorrect", variant: "destructive" });
+    try {
+      if (setupMode) {
+        if (setupName.trim().length < 2) throw new Error("Saisissez votre nom complet.");
+        const { data: signup, error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: { full_name: setupName.trim() },
+            emailRedirectTo: `${window.location.origin}/login/super-admin`,
+          },
+        });
+        if (error) throw new Error(error.message);
+        if (signup.session) {
+          await manageAccount({ action: "bootstrap-super-admin", fullName: setupName.trim() });
+          toast({ title: "Compte propriétaire créé", description: "Vous pouvez maintenant accéder à l’administration." });
+          navigate("/super-admin");
+          return;
+        }
+        setConfirmationSent(true);
+        toast({ title: "Vérifiez votre boîte mail", description: "Confirmez votre adresse avant de créer le compte propriétaire." });
+        return;
       }
-    }, 1000);
+
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
+      if (error || !authData.user) throw new Error("Email ou mot de passe incorrect.");
+      const { data: roles, error: rolesError } = await supabase.from("user_roles").select("role").eq("user_id", authData.user.id);
+      if (rolesError) throw new Error("Impossible de vérifier les droits de ce compte.");
+      const isSuperAdmin = roles?.some((role) => role.role === "super_admin") ?? false;
+      if (!isSuperAdmin && bootstrapAvailable) {
+        const fullName = String(authData.user.user_metadata?.full_name ?? setupName).trim();
+        try {
+          await manageAccount({ action: "bootstrap-super-admin", fullName: fullName || data.email.split("@")[0] });
+          toast({ title: "Compte propriétaire créé", description: "Bienvenue dans EduLedger." });
+          navigate("/super-admin");
+          return;
+        } catch {
+          await supabase.auth.signOut();
+          throw new Error("Cette adresse ne peut pas terminer la configuration du compte propriétaire.");
+        }
+      }
+      const { data: profile } = await supabase.from("profiles").select("status").eq("id", authData.user.id).maybeSingle();
+      if (!isSuperAdmin || !profile || profile.status !== "active") {
+        await supabase.auth.signOut();
+        throw new Error("Ce compte n’a pas accès à l’espace Super Admin.");
+      }
+      toast({ title: "Connexion réussie", description: "Bienvenue, Super Admin." });
+      navigate("/super-admin");
+    } catch (error) {
+      toast({ title: "Connexion impossible", description: error instanceof Error ? error.message : "Vérifiez vos identifiants.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -115,18 +169,24 @@ const SuperAdminLogin = () => {
           </Link>
 
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground mb-2">Connexion Super Admin</h1>
-            <p className="text-muted-foreground">Accédez au panneau de contrôle principal</p>
+            <h1 className="text-2xl font-bold text-foreground mb-2">{setupMode ? "Créer le compte propriétaire" : "Connexion Super Admin"}</h1>
+            <p className="text-muted-foreground">{setupMode ? "Créez le premier accès sécurisé à EduLedger." : "Accédez au panneau de contrôle principal"}</p>
           </div>
 
-          <div className="mb-6 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground mb-1">Identifiants par défaut :</p>
-            <p>Email : <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{DEFAULT_EMAIL}</code></p>
-            <p>Mot de passe : <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{DEFAULT_PASSWORD}</code></p>
-          </div>
+          {setupMode && (
+            <div className="mb-6 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
+              {confirmationSent ? "Un lien de confirmation vous a été envoyé. Après confirmation, revenez ici et connectez-vous pour terminer." : "La création est limitée à l’adresse propriétaire autorisée et nécessite une confirmation par email."}
+            </div>
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              {setupMode && (
+                <div className="space-y-2">
+                  <Label htmlFor="owner-name">Nom complet</Label>
+                  <Input id="owner-name" value={setupName} onChange={(event) => setSetupName(event.target.value)} placeholder="Isaac Tshama" autoComplete="name" />
+                </div>
+              )}
               <FormField
                 control={form.control}
                 name="email"
@@ -184,6 +244,14 @@ const SuperAdminLogin = () => {
               </Button>
             </form>
           </Form>
+
+          {bootstrapAvailable && (
+            <div className="mt-5 text-center">
+              <Button variant="link" onClick={() => { setSetupMode(!setupMode); setConfirmationSent(false); }}>
+                {setupMode ? "Retour à la connexion" : "Créer le premier compte propriétaire"}
+              </Button>
+            </div>
+          )}
 
           <ForgotPasswordDialog open={forgotOpen} onOpenChange={setForgotOpen} type="email" />
 

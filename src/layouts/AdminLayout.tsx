@@ -2,9 +2,11 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { RoleGate } from "@/components/RoleGate";
 
 export default function AdminLayout() {
   return (
+    <RoleGate role="university_admin">
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
@@ -20,5 +22,6 @@ export default function AdminLayout() {
         </div>
       </div>
     </SidebarProvider>
+    </RoleGate>
   );
 }

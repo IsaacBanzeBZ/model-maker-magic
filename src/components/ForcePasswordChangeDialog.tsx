@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KeyRound, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { manageAccount } from "@/lib/account-management";
 
 interface ForcePasswordChangeDialogProps {
   open: boolean;
@@ -16,19 +17,28 @@ export function ForcePasswordChangeDialog({ open, onComplete }: ForcePasswordCha
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = () => {
-    if (newPassword.length < 8) {
-      toast({ title: "Erreur", description: "Le mot de passe doit contenir au moins 8 caractères.", variant: "destructive" });
+  const handleSubmit = async () => {
+    if (newPassword.length < 10) {
+      toast({ title: "Erreur", description: "Le mot de passe doit contenir au moins 10 caractères.", variant: "destructive" });
       return;
     }
     if (newPassword !== confirmPassword) {
       toast({ title: "Erreur", description: "Les mots de passe ne correspondent pas.", variant: "destructive" });
       return;
     }
-    toast({ title: "Mot de passe mis à jour", description: "Votre mot de passe a été changé avec succès." });
-    onComplete();
+    setIsSaving(true);
+    try {
+      await manageAccount({ action: "change-my-password", password: newPassword });
+      toast({ title: "Mot de passe mis à jour", description: "Votre mot de passe a été changé avec succès." });
+      onComplete();
+    } catch (error) {
+      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Le mot de passe n’a pas pu être modifié.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -55,7 +65,7 @@ export function ForcePasswordChangeDialog({ open, onComplete }: ForcePasswordCha
                 type={showNew ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimum 8 caractères"
+                placeholder="Minimum 10 caractères"
               />
               <Button
                 type="button"
@@ -90,7 +100,9 @@ export function ForcePasswordChangeDialog({ open, onComplete }: ForcePasswordCha
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSubmit} className="w-full">Changer le mot de passe</Button>
+          <Button onClick={handleSubmit} className="w-full" disabled={isSaving}>
+            {isSaving ? "Enregistrement…" : "Changer le mot de passe"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

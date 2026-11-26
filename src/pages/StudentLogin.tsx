@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import loginStudentImg from "@/assets/login-student.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { manageAccount } from "@/lib/account-management";
+import type { Session } from "@supabase/supabase-js";
 
 const studentLoginSchema = z.object({
   matricule: z.string().trim().min(3, "Le matricule est requis").max(50, "Matricule trop long"),
@@ -32,11 +35,24 @@ const StudentLogin = () => {
 
   const onSubmit = async (data: StudentLoginValues) => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({ title: "Connexion réussie", description: `Bienvenue, ${data.matricule}` });
+    try {
+      const result = await manageAccount<{ session: Session }>({
+        action: "student-login",
+        matricule: data.matricule,
+        password: data.password,
+      });
+      const { data: sessionData, error } = await supabase.auth.setSession({
+        access_token: result.session.access_token,
+        refresh_token: result.session.refresh_token,
+      });
+      if (error || !sessionData.user) throw new Error("La session étudiant n’a pas pu être ouverte.");
+      toast({ title: "Connexion réussie", description: "Bienvenue dans votre espace étudiant." });
       navigate("/student");
-    }, 1000);
+    } catch (error) {
+      toast({ title: "Connexion impossible", description: error instanceof Error ? error.message : "Vérifiez votre matricule et votre mot de passe.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

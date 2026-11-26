@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import loginAdminImg from "@/assets/login-admin.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 const adminLoginSchema = z.object({
   email: z.string().trim().email("Adresse email invalide").max(255),
@@ -32,11 +33,24 @@ const AdminLogin = () => {
 
   const onSubmit = async (data: AdminLoginValues) => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({ title: "Connexion réussie", description: `Bienvenue, ${data.email}` });
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
+      if (error || !authData.user) throw new Error("Email ou mot de passe incorrect.");
+      const [{ data: roles }, { data: profile }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", authData.user.id),
+        supabase.from("profiles").select("status").eq("id", authData.user.id).maybeSingle(),
+      ]);
+      if (!profile || profile.status !== "active" || !roles?.some((role) => role.role === "university_admin")) {
+        await supabase.auth.signOut();
+        throw new Error("Ce compte n’a pas accès à l’espace administrateur.");
+      }
+      toast({ title: "Connexion réussie", description: "Bienvenue dans votre espace universitaire." });
       navigate("/admin");
-    }, 1000);
+    } catch (error) {
+      toast({ title: "Connexion impossible", description: error instanceof Error ? error.message : "Vérifiez vos identifiants.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
